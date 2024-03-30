@@ -30,6 +30,7 @@ public class PostService {
     private final CommentRepository commentRepository;
     private final CommentLikeRepository commentLikeRepository;
     private final ReportPostRepository reportPostRepository;
+    private final PostImageRepository postImageRepository;
 
     /* 게시글 작성 */
     @Transactional
@@ -48,6 +49,22 @@ public class PostService {
                     hashtagRepository.save(addHashtag);
                 }
             }
+            if(createPostReq.getThumbnailImage() != null){
+                Optional<PostImage> thumbnail = postImageRepository.findByFileName(createPostReq.getThumbnailImage());
+                if(thumbnail.isPresent()){
+                    thumbnail.get().changeThumbnail();
+                    thumbnail.get().addPost(post);
+                }
+            }
+            if(createPostReq.getImageNames() != null){
+                for (String name : createPostReq.getImageNames()){
+                    Optional<PostImage> postImageResult = postImageRepository.findByFileName(name);
+                    if(postImageResult.isPresent()){
+                        postImageResult.get().addPost(post);
+                    }
+                }
+            }
+
 
             return ResponseEntity.status(HttpStatus.OK).body("게시글이 등록되었습니다.");
         }
@@ -76,7 +93,7 @@ public class PostService {
     public ResponseEntity renewPost(Long postId, String userId, UpdatePostReq updatePostReq){
         Optional<Post> result = postRepository.findUserPost(postId, userId);
         if(isEnumValue(updatePostReq.getPostCategory())){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("존재하지 않는카테고리입니다.");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("존재하지 않는 카테고리입니다.");
         }
         if(result.isPresent()){
             Post post = result.get();
@@ -105,6 +122,27 @@ public class PostService {
                     }
                 }
 
+            }
+            if(updatePostReq.getThumbnailImage() != null){
+                Optional<PostImage> thumbnail = postImageRepository.findByFileName(updatePostReq.getThumbnailImage());
+                if(thumbnail.isPresent()){
+                    Optional<PostImage> preThumbnail = postImageRepository.findThumbnail(post.getId(), PostImageStatus.THUMBNAIL);
+                    if(preThumbnail.isPresent()){
+                        preThumbnail.get().changeNotThumbnail();
+                    }
+                    thumbnail.get().changeThumbnail();
+                    thumbnail.get().addPost(post);
+
+                }
+            }
+
+            if(updatePostReq.getUpdateImageNames() != null){
+                for (String name : updatePostReq.getUpdateImageNames()){
+                    Optional<PostImage> postImageResult = postImageRepository.findByFileName(name);
+                    if(postImageResult.isPresent()){
+                        postImageResult.get().addPost(post);
+                    }
+                }
             }
             return ResponseEntity.status(HttpStatus.OK).body("수정이 완료되었습니다.");
         }
@@ -138,9 +176,9 @@ public class PostService {
             /* 댓글 조회 */
             Optional<List<Comment>> commentResult = commentRepository.findByPostId(postId);
             List<ViewCommentRes> viewCommentResList = new ArrayList<>();
-            boolean likeCommentCheck = false;
             if(commentResult.isPresent()){
                 for(Comment comment : commentResult.get()){
+                    boolean likeCommentCheck = false;
                     if(userId != null || userId.equals("anonymousUser")){ // 댓글 좋아요 확인 로직
                         Optional<CommentLike> commentLikeResult = commentLikeRepository.checkLikeComment(comment.getId(), userId);
                         if(commentLikeResult.isPresent()){
@@ -257,16 +295,21 @@ public class PostService {
     /* 좋아요가 많은 게시글 리스트 조회(3개) */
     public ResponseEntity bestListPost(){
         List<Post> bestPosts = postRepository.findTop3LikePost();
-        List<ViewPostListRes> viewPostListResList = new ArrayList<>();
+        List<ViewBestPostListRes> viewBestPostListResList = new ArrayList<>();
 
         if(bestPosts.size() > 0){
             for (Post bestPost : bestPosts) {
-                ViewPostListRes viewPostListRes = new ViewPostListRes(bestPost);
-                viewPostListResList.add(viewPostListRes);
+                ViewBestPostListRes viewBestPostListRes = new ViewBestPostListRes(bestPost);
+                Optional<PostImage> thumbnail = postImageRepository.findThumbnail(bestPost.getId(), PostImageStatus.THUMBNAIL);
+                if(thumbnail.isPresent()){
+                    viewBestPostListRes.addThumbnail(thumbnail.get().getReturnUrl());
+                }
+
+                viewBestPostListResList.add(viewBestPostListRes);
             }
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(viewPostListResList);
+        return ResponseEntity.status(HttpStatus.OK).body(viewBestPostListResList);
     }
 
     /* 게시글 작성자의 닉네임 검색 */

@@ -29,6 +29,8 @@ public class ProfileImage {
 
     private String filePath;
 
+    private String returnUrl;
+
     private Long fileSize;
 
     @CreationTimestamp
@@ -41,5 +43,9 @@ public class ProfileImage {
         this.fileName = fileName;
         this.filePath = filePath;
         this.fileSize = fileSize;
+    }
+
+    public void addReturnUrl(String url){
+        this.returnUrl = url;
     }
 }

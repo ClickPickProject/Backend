@@ -1,6 +1,5 @@
 package com.clickpick.repository;
 
-import com.clickpick.domain.ReportComment;
 import com.clickpick.domain.ReportPost;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -27,6 +27,7 @@ public class ViewPostRes {
     private String postCategory;
     private Long commentCount;
     private boolean likePostCheck;
+    private String profileUrl;
     private List<ViewCommentRes> comments = new ArrayList<>();
 
 
@@ -43,6 +44,12 @@ public class ViewPostRes {
         this.postCategory = post.getPostCategory().toString();
         this.commentCount = (long) post.getComments().size();
         this.likePostCheck = likePostCheck;
+        if(post.getUser().getProfileImage() == null){
+            this.profileUrl = "http://clickpick.iptime.org:8080/profile/images/default.png";
+        }
+        else {
+            this.profileUrl = post.getUser().getProfileImage().getReturnUrl();
+        }
     }
 
     public void addHashtag(String hashtag) {

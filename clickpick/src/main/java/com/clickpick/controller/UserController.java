@@ -1,7 +1,5 @@
 package com.clickpick.controller;
 
-import com.clickpick.dto.comment.ReportCommentReq;
-import com.clickpick.dto.post.ReportPostReq;
 import com.clickpick.dto.user.*;
 import com.clickpick.service.PostService;
 import com.clickpick.service.UserService;
@@ -11,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor

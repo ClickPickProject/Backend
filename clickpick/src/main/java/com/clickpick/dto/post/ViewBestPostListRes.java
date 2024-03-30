@@ -1,14 +1,15 @@
 package com.clickpick.dto.post;
 
+import com.clickpick.domain.Hashtag;
 import com.clickpick.domain.Post;
 import lombok.Data;
-import com.clickpick.domain.Hashtag;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
-public class ViewPostListRes {
+public class ViewBestPostListRes {
 
     private Long postId;
     private String nickname;
@@ -21,7 +22,9 @@ public class ViewPostListRes {
     private Long commentCount;
     private String profileUrl;
 
-    public ViewPostListRes(Post post) {
+    private String thumbnail;
+
+    public ViewBestPostListRes(Post post) {
         this.postId = post.getId();
         this.nickname = post.getUser().getNickname();
         this.title = post.getTitle();
@@ -37,7 +40,9 @@ public class ViewPostListRes {
         else {
             this.profileUrl = post.getUser().getProfileImage().getReturnUrl();
         }
-
     }
 
+    public void addThumbnail(String url){
+        this.thumbnail = url;
+    }
 }

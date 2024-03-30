@@ -23,6 +23,7 @@ public class ViewCommentRes {
     private Long likeCount;
     private boolean likeCommentCheck;
     private String commentStatus;
+    private String profileUrl;
     private List<ViewRecommentRes> recommentList = new ArrayList<>();
 
 
@@ -34,6 +35,12 @@ public class ViewCommentRes {
         this.likeCount = (long) comment.getCommentLikes().size();
         this.likeCommentCheck = likeCommentCheck;
         this.commentStatus = String.valueOf(comment.getStatus());
+        if(comment.getUser(). getProfileImage() == null){
+            this.profileUrl = "http://clickpick.iptime.org:8080/profile/images/default.png";
+        }
+        else {
+            this.profileUrl = comment.getUser().getProfileImage().getReturnUrl();
+        }
     }
 
     public void addRecomment(ViewRecommentRes viewRecommentRes){

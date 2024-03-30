@@ -50,8 +50,10 @@ public class Post {
     private List<Hashtag> hashtags = new ArrayList<>(); //
     @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<PostLike> postLikes = new ArrayList<>();
-    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE,orphanRemoval = true)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<PostImage> images = new ArrayList<>();
 
 
     // 이미지 넣어야함

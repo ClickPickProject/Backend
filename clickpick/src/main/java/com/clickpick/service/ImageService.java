@@ -1,7 +1,9 @@
 package com.clickpick.service;
 
+import com.clickpick.domain.PostImage;
 import com.clickpick.domain.ProfileImage;
 import com.clickpick.domain.User;
+import com.clickpick.dto.image.UrlRes;
 import com.clickpick.repository.PostImageRepository;
 import com.clickpick.repository.PostRepository;
 import com.clickpick.repository.ProfileImageRepository;
@@ -89,18 +91,59 @@ public class ImageService {
                 String ImagePath = profileImage.getFilePath() + "/" + profileImage.getFileName();
                 String url = dns + "/profile/images/" + profileImage.getFileName();
                 //byte[] fileArray = getImage(ImagePath);
-                return ResponseEntity.status(HttpStatus.OK).body(url);
+                UrlRes urlRes = new UrlRes(url, profileImage.getFileSize());
+                return ResponseEntity.status(HttpStatus.OK).body(urlRes);
 
             }
             else{ // 프로필이 없는 경우
                 String imagePath = uploadPath + "/profile/default.png";
                 String url = dns + "/profile/images/" + "default.png";
                 //byte[] fileArray = getImage(imagePath);
+                UrlRes urlRes = new UrlRes(url);
 
-                return ResponseEntity.status(HttpStatus.OK).body(url);
+                return ResponseEntity.status(HttpStatus.OK).body(urlRes);
             }
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("회원만 사용 가능한 기능입니다.");
+    }
+
+    /* 게시글 이미지 추가 */
+    @Transactional
+    public ResponseEntity createPostImage(String userId, MultipartFile file) throws IOException {
+        Optional<User> userResult = userRepository.findById(userId);
+        if(userResult.isPresent()){
+            User user = userResult.get();
+            if(file.getContentType().startsWith("image") == false){
+                return  ResponseEntity.status(HttpStatus.CONFLICT).body("이미지만 업로드 가능합니다.");
+            }
+
+            PostImage postImage = uploadPostImage(file, user); // 업로드 + 파일 이름 가져옴
+            String url = dns + "/post/images/" + postImage.getFileName();
+            postImage.addReturnUrl(url);
+            UrlRes urlRes = new UrlRes(url, file.getSize());
+
+            return ResponseEntity.status(HttpStatus.OK).body(urlRes);
+
+
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("회원만 사용 가능한 기능입니다.");
+    }
+
+    /* 게시글 이미지 삭제 */
+    @Transactional
+    public ResponseEntity deletePostImage(String userId, String imageName){
+        Optional<User> userResult = userRepository.findById(userId);
+        if(userResult.isPresent()){
+            Optional<PostImage> postImageResult = postImageRepository.findPostImage(userId, imageName);
+            if(postImageResult.isPresent()){
+                PostImage postImage = postImageResult.get();
+                deleteLocalProfileImage(postImage.getFilePath()+ "/" + postImage.getFileName());
+                postImageRepository.delete(postImage);
+                return ResponseEntity.status(HttpStatus.OK).body("해당 이미지가 삭제되었습니다.");
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사진이 존재하지 않습니다.");
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("회원만 사용 가능한 기능입니다.");
     }
 
     /* 이미지 가져오는 함수 */
@@ -137,11 +180,29 @@ public class ImageService {
         String filePath = uploadPath + "/profile";
 
         ProfileImage profileImage = new ProfileImage(user, fileName, filePath, file.getSize());
+        String url = dns + "/post/images/" + fileName;
+        profileImage.addReturnUrl(url);
         profileImageRepository.save(profileImage);
 
         File saveFile = new File(filePath,fileName);
 
         file.transferTo(saveFile);
+    }
+
+    private PostImage uploadPostImage(MultipartFile file, User user) throws IOException {
+
+        UUID uuid = UUID.randomUUID();
+        String fileName = uuid +"." +getFileExtension(file);
+        String filePath = uploadPath + "/post";
+
+        PostImage postImage = new PostImage(user, fileName, filePath, file.getSize());
+        postImageRepository.save(postImage);
+
+        File saveFile = new File(filePath,fileName);
+
+        file.transferTo(saveFile);
+
+        return postImage;
     }
 
     private void deleteLocalProfileImage(String filePath) {
@@ -161,5 +222,6 @@ public class ImageService {
         }
         return null; // 확장자가 없는 경우
     }
+
 
 }

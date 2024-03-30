@@ -1,6 +1,7 @@
 package com.clickpick.dto.post;
 
 
+import com.clickpick.domain.PostImage;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -22,5 +23,10 @@ public class CreatePostReq {
     private String position;
 
     private List<String> hashtags = new ArrayList<>();
+
+    private String thumbnailImage;
+
+    private List<String> imageNames = new ArrayList<>();
+
 
 }

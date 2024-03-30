@@ -34,10 +34,12 @@ public class User {
     @Enumerated(EnumType.STRING)
     @ColumnDefault("'NORMAL'")
     private UserStatus status;
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private ProfileImage profileImage;
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true) // 유저 삭제시 post 연쇄 삭제
     private List<Post> posts = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<PostImage> postImages = new ArrayList<>();
 
 
 

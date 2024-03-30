@@ -5,7 +5,6 @@ import com.clickpick.dto.comment.CreateCommentReq;
 import com.clickpick.dto.comment.CreateReCommentReq;
 import com.clickpick.dto.comment.ReportCommentReq;
 import com.clickpick.repository.*;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

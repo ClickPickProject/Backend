@@ -14,7 +14,7 @@ import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-    @Query("select p from Post p where p.user.id =:userId and p.id =:postId") // 띄어쓰기 주의 =:바로다음에 와야함
+    @Query("select p from Post p where p.user.id =:userId and p.id =:postId") // 띄어쓰기 주의 =:바로다음에 와야함ㄷ
     Optional<Post> findUserPost(@Param("postId")Long postId, @Param("userId")String userId); // 유저가 작성한 게시글 조회
 
     // 작성한 게시글 리스트 검색 쿼리
@@ -26,11 +26,11 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findLikePost(@Param("userId")String userId, Pageable pageable);
 
     // 작성한 댓글의 게시글 리스트 검색 쿼리
-    @Query("select distinct p from Post p join fetch p.comments c where c.user.id =:userId")
+    @Query("select distinct p from Post p join fetch p.comments c where c.user.id =:userId") //fetch 시 별칭 쓰면 안된다더라...
     Page<Post> findCommentUserId(@Param("userId")String userId, Pageable pageable);
 
     // 좋아요 한 댓글의 게시글 리스트 검색 쿼리
-    @Query("select distinct p from Post p join fetch p.comments c join c.commentLikes cl where cl.user.id =:userId")
+    @Query("select distinct p from Post p join fetch p.comments c join c.commentLikes cl where cl.user.id =:userId") //fetch 시 별칭 쓰면 안된다더라...
     Page<Post> findLikeComment(@Param("userId")String userId, Pageable pageable);
 
     // 좋아요 top3 검색 쿼리

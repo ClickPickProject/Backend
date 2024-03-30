@@ -41,7 +41,7 @@ public class PostService {
         }
         if(result.isPresent()){
             User user = result.get();
-            Post post = new Post(user,createPostReq.getPosition(),createPostReq.getContent(),createPostReq.getTitle(),createPostReq.getPostCategory());
+            Post post = new Post(user, createPostReq.getPosition(), createPostReq.getXPosition(), createPostReq.getYPosition(), createPostReq.getContent(), createPostReq.getTitle(), createPostReq.getPostCategory());
             postRepository.save(post);
             if(createPostReq.getHashtags() != null){
                 for (String hashtag : createPostReq.getHashtags()) {
@@ -97,7 +97,7 @@ public class PostService {
         }
         if(result.isPresent()){
             Post post = result.get();
-            post.changePost(updatePostReq.getTitle(), updatePostReq.getContent(), updatePostReq.getPosition(), updatePostReq.getPostCategory());
+            post.changePost(updatePostReq.getTitle(), updatePostReq.getContent(), updatePostReq.getPosition(), updatePostReq.getXPosition(), updatePostReq.getYPosition(), updatePostReq.getPostCategory());
 
             /* 게시글 중 해시 태그 수정 */
             Optional<List<Hashtag>> hashResult = hashtagRepository.findPostHashtag(postId);

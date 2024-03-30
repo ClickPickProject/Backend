@@ -17,6 +17,8 @@ public class UpdatePostReq {
     private String postCategory;
 
     private String position;
+    private double xPosition;
+    private double yPosition;
 
     private List<String> hashtags;
 

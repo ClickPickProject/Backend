@@ -30,7 +30,9 @@ public class Post {
     @Column(nullable = false)
     private LocalDateTime createAt;
     private String position;
+    @ColumnDefault("200.0") // -90 ~ 90 까지 존재
     private double xPosition;
+    @ColumnDefault("200.0") // -180 ~ 180 까지 존재
     private double yPosition;
     @Column(nullable = false, length = 50000)
     private String content;

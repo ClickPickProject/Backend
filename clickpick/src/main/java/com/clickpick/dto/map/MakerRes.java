@@ -1,7 +1,9 @@
 package com.clickpick.dto.map;
 
 import com.clickpick.domain.Post;
+import lombok.Data;
 
+@Data
 public class MakerRes {
 
     private double xPosition;

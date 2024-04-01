@@ -31,9 +31,8 @@ public class ImageController {
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }
 
-    /* 프로필 사진 조회 */ //보여줄땐?
-
-    @GetMapping(value = "api/member/profile/image")
+    /* 프로필 사진 조회 */
+    @GetMapping(value = "api/profile/image")
     public ResponseEntity viewProfile(){
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         ResponseEntity responseEntity = imageService.myProfile(userId);
@@ -56,7 +55,4 @@ public class ImageController {
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }
 
-    /* 게시글 사진 조회 */
-
-    /* 베스트 게시글 리스트 사진 조회 */
 }

@@ -1,8 +1,8 @@
 package com.clickpick.service;
 
 import com.clickpick.domain.Post;
-import com.clickpick.dto.map.MakerReq;
-import com.clickpick.dto.map.MakerRes;
+import com.clickpick.dto.map.MarkerReq;
+import com.clickpick.dto.map.MarkerRes;
 import com.clickpick.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,13 +22,13 @@ public class MapService {
     private final PostRepository postRepository;
 
     //범위에 해당하는 게시글 반환
-    public ResponseEntity findMakers(MakerReq makerReq) {
+    public ResponseEntity findMarkers(MarkerReq makerReq) {
         Optional<List<Post>> makerResult = postRepository.findBound(makerReq.getSouth(), makerReq.getWest(), makerReq.getNorth(), makerReq.getEast());
-        List<MakerRes> makerResList = new ArrayList<>();
+        List<MarkerRes> makerResList = new ArrayList<>();
         if(makerResult.isPresent()){
             List<Post> posts = makerResult.get();
             for(Post post : posts){
-                MakerRes makerRes = new MakerRes(post);
+                MarkerRes makerRes = new MarkerRes(post);
                 makerResList.add(makerRes);
             }
         }

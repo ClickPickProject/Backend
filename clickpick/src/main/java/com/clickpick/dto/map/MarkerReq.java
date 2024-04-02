@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class MakerReq {
+public class MarkerReq {
     @NotNull
     private double south;
     @NotNull

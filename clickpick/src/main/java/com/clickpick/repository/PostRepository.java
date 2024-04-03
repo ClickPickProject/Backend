@@ -61,6 +61,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("select p from Post p where p.xPosition >=:west and p.xPosition <=:east and p.yPosition >=:south and p.yPosition <=:north")
     Optional<List<Post>> findBound(@Param("south") double south, @Param("west") double west, @Param("north") double north, @Param("east") double east);
 
+    // 좌표 검색 쿼리
+    @Query("select p from Post p where p.xPosition =:xPosition and p.yPosition =:yPosition")
+    Page<Post> findPosition(@Param("xPosition") double xPosition, @Param("yPosition") double yPosition, Pageable pageable);
 
 
 }

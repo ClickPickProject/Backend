@@ -1,10 +1,15 @@
 package com.clickpick.service;
 
+import com.clickpick.domain.PositionLike;
 import com.clickpick.domain.Post;
+import com.clickpick.domain.User;
+import com.clickpick.dto.map.LikedPositionReq;
 import com.clickpick.dto.map.MarkerReq;
 import com.clickpick.dto.map.MarkerRes;
 import com.clickpick.dto.post.ViewPostListRes;
+import com.clickpick.repository.PositionLikeRepository;
 import com.clickpick.repository.PostRepository;
+import com.clickpick.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,7 +28,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MapService {
 
+    private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final PositionLikeRepository positionLikeRepository;
 
     /* 범위에 해당하는 게시글 반환 */
     public ResponseEntity findMarkers(MarkerReq makerReq) {
@@ -48,4 +55,39 @@ public class MapService {
         return ResponseEntity.status(HttpStatus.OK).body(map);
 
     }
+
+    /* 장소 좋아요 */
+    @Transactional
+    public ResponseEntity bookmarkPosition(LikedPositionReq likedPositionReq, String userId) {
+        Optional<User> userResult = userRepository.findById(userId);
+        if(userResult.isPresent()){
+            Optional<PositionLike> positionResult = positionLikeRepository.findPosition(likedPositionReq.getXPosition(), likedPositionReq.getYPosition());
+            PositionLike positionLike = new PositionLike(userResult.get(), likedPositionReq.getXPosition(), likedPositionReq.getYPosition(), likedPositionReq.getStatus());
+            if(positionResult.isPresent()){
+                positionLikeRepository.delete(positionResult.get());
+                return ResponseEntity.status(HttpStatus.OK).body("즐겨찾기에서 삭제하였습니다.");
+            }
+            else{
+                positionLikeRepository.save(positionLike);
+                return ResponseEntity.status(HttpStatus.OK).body("즐겨찾기에 등록하였습니다.");
+            }
+
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("회원만 사용 가능한 기능입니다.");
+    }
+
+    /* 장소 좋아요 리스트 */ //범위는?
+    public ResponseEntity viewBookmarkPosition(String userId){
+        Optional<User> userResult = userRepository.findById(userId);
+        if(userResult.isPresent()){
+            Optional<List<PositionLike>> positionLikeResult = positionLikeRepository.findUser(userId);
+            if(positionLikeResult.isPresent()){
+
+            }
+
+        }
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("회원만 사용 가능한 기능입니다.");
+    }
+
 }

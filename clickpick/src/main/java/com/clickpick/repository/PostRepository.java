@@ -58,7 +58,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findCategory(@Param("searchCategory") PostCategory searchCategory, Pageable pageable);
 
     // 지도 영역 포함 게시글 검색
-    @Query("select p from Post p where p.xPosition >=:west and p.xPosition <=:east and p.yPosition >=:south and p.yPosition <=:north")
+    @Query("select p from Post p where p.xPosition >=:west and p.xPosition <=:east and p.yPosition >=:south and p.yPosition <=:north ORDER BY p.createAt DESC")
     Optional<List<Post>> findBound(@Param("south") double south, @Param("west") double west, @Param("north") double north, @Param("east") double east);
 
     // 좌표 검색 쿼리

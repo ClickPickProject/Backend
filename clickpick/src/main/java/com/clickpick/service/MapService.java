@@ -4,6 +4,7 @@ import com.clickpick.domain.PositionLike;
 import com.clickpick.domain.Post;
 import com.clickpick.domain.User;
 import com.clickpick.dto.map.LikedPositionReq;
+import com.clickpick.dto.map.LikedPositionRes;
 import com.clickpick.dto.map.MarkerReq;
 import com.clickpick.dto.map.MarkerRes;
 import com.clickpick.dto.post.ViewPostListRes;
@@ -56,7 +57,7 @@ public class MapService {
 
     }
 
-    /* 장소 좋아요 */
+    /* 장소 즐겨찾기 */
     @Transactional
     public ResponseEntity bookmarkPosition(LikedPositionReq likedPositionReq, String userId) {
         Optional<User> userResult = userRepository.findById(userId);
@@ -76,14 +77,21 @@ public class MapService {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body("회원만 사용 가능한 기능입니다.");
     }
 
-    /* 장소 좋아요 리스트 */ //범위는?
-    public ResponseEntity viewBookmarkPosition(String userId){
+    /* 장소 즐겨찾기 리스트 */
+    public ResponseEntity viewBookmarkPosition(String userId, MarkerReq makerReq){
         Optional<User> userResult = userRepository.findById(userId);
         if(userResult.isPresent()){
-            Optional<List<PositionLike>> positionLikeResult = positionLikeRepository.findUser(userId);
+            Optional<List<PositionLike>> positionLikeResult = positionLikeRepository.findUser(userId, makerReq.getSouth(), makerReq.getWest(), makerReq.getNorth(), makerReq.getEast());
+            List<LikedPositionRes> likedPositionResList = new ArrayList<>();
             if(positionLikeResult.isPresent()){
+                List<PositionLike> positionLikes = positionLikeResult.get();
+                for(PositionLike positionLike : positionLikes){
+                    LikedPositionRes likedPositionRes = new LikedPositionRes(positionLike);
+                    likedPositionResList.add(likedPositionRes);
+                }
 
             }
+            return ResponseEntity.status(HttpStatus.OK).body(likedPositionResList);
 
         }
 

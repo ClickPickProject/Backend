@@ -17,8 +17,8 @@ public class MapController {
 
     /* 지도 영역 게시글 마커 조회*/
     @PostMapping("/api/map/marker")
-    private ResponseEntity getMarkers(@RequestBody @Valid MarkerReq makerReq){
-        ResponseEntity responseEntity = mapService.findMarkers(makerReq);
+    private ResponseEntity getMarkers(@RequestBody @Valid MarkerReq markerReq){
+        ResponseEntity responseEntity = mapService.findMarkers(markerReq);
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }
 
@@ -38,10 +38,10 @@ public class MapController {
     }
 
     /* 즐겨찾기 목록 조회 */
-    @GetMapping("/api/member/map/bookmark")
-    public ResponseEntity viewBookmark(){
+    @PostMapping("/api/member/map/bookmark/list")
+    public ResponseEntity viewBookmark(@RequestBody @Valid MarkerReq markerReq){
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        ResponseEntity responseEntity = mapService.viewBookmarkPosition(userId);
+        ResponseEntity responseEntity = mapService.viewBookmarkPosition(userId, markerReq);
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }
 

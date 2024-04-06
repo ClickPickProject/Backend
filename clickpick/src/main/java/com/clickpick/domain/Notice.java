@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -24,7 +25,7 @@ public class Notice {
     private String content;
     @CreationTimestamp
     @Column(nullable = false)
-    private LocalDateTime createdAt;
+    private LocalDateTime createAt;
 
 
     public Notice(Admin admin, String title, String content) {
@@ -38,6 +39,5 @@ public class Notice {
         this.title = title;
         this.content = content;
     }
-
 
 }

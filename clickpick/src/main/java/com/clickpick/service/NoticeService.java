@@ -1,14 +1,17 @@
 package com.clickpick.service;
 
-import com.clickpick.domain.Admin;
-import com.clickpick.domain.Hashtag;
-import com.clickpick.domain.Notice;
-import com.clickpick.domain.Post;
+import com.clickpick.domain.*;
 import com.clickpick.dto.admin.CreateNoticeReq;
+import com.clickpick.dto.admin.GetNoticeListReq;
 import com.clickpick.dto.admin.UpdateNoticeReq;
+import com.clickpick.dto.admin.ViewNoticeReq;
 import com.clickpick.repository.AdminRepository;
 import com.clickpick.repository.NoticeRepository;
 import lombok.RequiredArgsConstructor;
+import org.aspectj.weaver.ast.Not;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -51,6 +54,7 @@ public class NoticeService {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body("사용자가 삭제할 수 없는 게시글입니다.");
     }
 
+    /* 공지글 수정 */
     @Transactional
     public ResponseEntity renewNotice(Long noticeId, String adminId, UpdateNoticeReq updateNoticeReq) {
         Optional<Notice> result = noticeRepository.findAdminNotice(noticeId, adminId);
@@ -63,11 +67,37 @@ public class NoticeService {
 
             notice.ChangePost(updateNoticeReq.getTitle(), updateNoticeReq.getContent());
 
-
             return ResponseEntity.status(HttpStatus.OK).body("수정이 완료되었습니다.");
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body("사용자가 수정할 수 없는 게시글입니다.");
-
-
     }
+
+
+    /* 공지글 리스트 */
+    @Transactional
+    public ResponseEntity getNotice(int page) {
+        PageRequest pageRequest = PageRequest.of(page, 10, Sort.by(Sort.Direction.ASC, "createAt"));
+        Page<Notice> pagingResult = noticeRepository.findAll(pageRequest);
+        Page<GetNoticeListReq> map = pagingResult.map(notice -> new GetNoticeListReq(notice));
+
+        return ResponseEntity.status(HttpStatus.OK).body(map);
+    }
+
+    /* 공지글 상세조회 */
+    @Transactional
+    public ResponseEntity selectNotice(Long noticeId) {
+        //들어온 noticeId로 공지글을 db에서 찾는다.
+        Optional<Notice> noticeResult = noticeRepository.findById(noticeId);
+        if(noticeResult.isPresent()){
+            Notice notice = noticeResult.get();
+            ViewNoticeReq viewNoticeReq = new ViewNoticeReq(notice.getAdmin().getId(), notice);
+
+            return ResponseEntity.status(HttpStatus.OK).body(viewNoticeReq);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("공지글을 찾을 수 업습니다.");
+    }
+
+
+
+
 }

@@ -1,15 +1,21 @@
 package com.clickpick.domain;
 
+import com.clickpick.dto.question.UpdateQuestionReq;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.DynamicInsert;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
+@DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class QuestionPost {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,11 +29,34 @@ public class QuestionPost {
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50000)
     private String content;
 
     @Column(nullable = false)
     @CreationTimestamp
     private LocalDateTime createAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private QuestionPost parent;
+
+    @OneToMany(mappedBy = "parent", orphanRemoval = true)
+    private List<QuestionPost> answers = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
+    @ColumnDefault("'AWAITING'")
+    private QuestionStatus status;
+
+    public QuestionPost(User user, String title, String content, QuestionPost parent) {
+        this.user = user;
+        this.title = title;
+        this.content = content;
+        this.parent = parent;
+    }
+
+    public void changeQuestion(UpdateQuestionReq updateQuestionReq){
+        this.title = updateQuestionReq.getTitle();
+        this.content = updateQuestionReq.getContent();
+    }
 
 }

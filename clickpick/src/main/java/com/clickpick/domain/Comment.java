@@ -48,7 +48,7 @@ public class Comment {
     @ColumnDefault("'LIVE'")
     private CommentStatus status;
 
-    public Comment(Post post, User user, String content, Comment parent) { // 게시글 작성
+    public Comment(Post post, User user, String content, Comment parent) { // 댓글 작성
         this.post = post;
         this.user = user;
         this.content = content;

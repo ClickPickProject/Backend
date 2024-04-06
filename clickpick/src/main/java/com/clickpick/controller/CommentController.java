@@ -26,7 +26,7 @@ public class CommentController {
 
     /* 댓글 삭제 */
     @DeleteMapping("/api/member/comment/{commentId}")
-    public ResponseEntity erasePost(@PathVariable("commentId")Long commentId){ // 위치정보, 해시태그 없으면 null
+    public ResponseEntity eraseComment(@PathVariable("commentId")Long commentId){ // 위치정보, 해시태그 없으면 null
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         ResponseEntity responseEntity = commentService.deleteComment(userId, commentId);
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
@@ -34,7 +34,7 @@ public class CommentController {
 
     /* 댓글 수정 */
     @PostMapping("/api/member/comment/{commentId}")
-    public ResponseEntity updatePost(@PathVariable("commentId")Long commentId, @RequestBody @Valid CreateCommentReq updateCommentReq){ // 위치정보, 해시태그 없으면 null
+    public ResponseEntity updateComment(@PathVariable("commentId")Long commentId, @RequestBody @Valid CreateCommentReq updateCommentReq){ // 위치정보, 해시태그 없으면 null
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         ResponseEntity responseEntity = commentService.renewComment(userId, commentId, updateCommentReq);
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());

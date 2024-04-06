@@ -1,7 +1,5 @@
 package com.clickpick.dto.post;
 
-
-import com.clickpick.domain.PostImage;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 

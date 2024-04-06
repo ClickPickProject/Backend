@@ -11,4 +11,7 @@ public interface QuestionPostRepository extends JpaRepository<QuestionPost, Long
 
     @Query("select qp from QuestionPost qp where qp.id =:questionId and qp.user.id =:userId")
     Optional<QuestionPost> findQuestionUser(@Param("questionId")Long questionId, @Param("userId")String userId);
+
+    @Query("select qp from QuestionPost qp where qp.id =:questionId and qp.admin.id =:adminId")
+    Optional<QuestionPost> findAnswerAdmin(@Param("questionId")Long questionId, @Param("adminId")String adminId);
 }

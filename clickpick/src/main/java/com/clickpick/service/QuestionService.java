@@ -1,5 +1,6 @@
 package com.clickpick.service;
 
+import com.clickpick.domain.Admin;
 import com.clickpick.domain.QuestionPost;
 import com.clickpick.domain.QuestionStatus;
 import com.clickpick.domain.User;
@@ -53,9 +54,9 @@ public class QuestionService {
                 }
                 QuestionPost questionPost = questionResult.get();
                 questionPost.changeQuestion(updateQuestionReq);
-                return ResponseEntity.status(HttpStatus.OK).body("질문을 변경하였습니다.");
+                return ResponseEntity.status(HttpStatus.OK).body("질문을 수정하였습니다.");
             }
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 질문입니다.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("사용자가 수정할 수 없는 질문입니다.");
 
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 이메일(아이디)입니다.");
@@ -71,7 +72,7 @@ public class QuestionService {
                 questionPostRepository.delete(questionResult.get());
                 return ResponseEntity.status(HttpStatus.OK).body("질문을 삭제하였습니다.");
             }
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 질문입니다.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("사용자가 삭제할 수 없는 질문입니다.");
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 이메일(아이디)입니다.");
     }
@@ -79,19 +80,52 @@ public class QuestionService {
     /* 답변 작성 */
     @Transactional
     public ResponseEntity createAnswer(String userId, Long questionId, CreateAnswerReq createAnswerReq) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 이메일(아이디)입니다.");
+        Optional<Admin> adminResult = adminRepository.findById(userId);
+        if(adminResult.isPresent()){
+            Optional<QuestionPost> questionResult = questionPostRepository.findById(questionId);
+            if(questionResult.isPresent()){
+                QuestionPost questionPost = new QuestionPost(adminResult.get(), createAnswerReq.getTitle(), createAnswerReq.getContent(), questionResult.get());
+                questionPostRepository.save(questionPost);
+                questionResult.get().changeComplete();
+                return ResponseEntity.status(HttpStatus.OK).body("답변을 작성하였습니다.");
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("질문이 존재하지 않습니다.");
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("관리자만 사용가능한 기능입니다.");
     }
 
     /* 답변 삭제 */
     @Transactional
     public ResponseEntity deleteAnswer(String userId, Long answerId) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 이메일(아이디)입니다.");
+        Optional<Admin> adminResult = adminRepository.findById(userId);
+        if(adminResult.isPresent()){
+            Optional<QuestionPost> questionResult = questionPostRepository.findAnswerAdmin(answerId, userId);
+            if(questionResult.isPresent()){
+                questionPostRepository.delete(questionResult.get());
+                Optional<QuestionPost> parentQuestion = questionPostRepository.findById(questionResult.get().getParent().getId());
+                parentQuestion.get().changeAwating();
+                return ResponseEntity.status(HttpStatus.OK).body("답변을 삭제하였습니다.");
+            }
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("삭제할 수 없는 답변입니다.");
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("관리자만 사용가능한 기능입니다.");
     }
 
     /* 답변 수정 */
     @Transactional
     public ResponseEntity renewAnswer(String userId, Long answerId, UpdateAnswerReq updateAnswerReq) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 이메일(아이디)입니다.");
+        Optional<Admin> adminResult = adminRepository.findById(userId);
+        if(adminResult.isPresent()){
+            Optional<QuestionPost> questionResult = questionPostRepository.findAnswerAdmin(answerId, userId);
+            if(questionResult.isPresent()){
+                QuestionPost questionPost = questionResult.get();
+                questionPost.changeQuestion(updateAnswerReq);
+                return ResponseEntity.status(HttpStatus.OK).body("답변을 수정하였습니다.");
+            }
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("수정할 수 없는 답변입니다.");
+
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("관리자만 사용가능한 기능입니다.");
     }
 
     /* 질문 상세 확인 */

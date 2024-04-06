@@ -1,5 +1,6 @@
 package com.clickpick.domain;
 
+import com.clickpick.dto.question.UpdateAnswerReq;
 import com.clickpick.dto.question.UpdateQuestionReq;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -23,8 +24,12 @@ public class QuestionPost {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id",nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "admin_id")
+    private Admin admin;
 
     @Column(nullable = false)
     private String title;
@@ -54,9 +59,30 @@ public class QuestionPost {
         this.parent = parent;
     }
 
+    public QuestionPost(Admin admin, String title, String content, QuestionPost parent) {
+        this.admin = admin;
+        this.title = title;
+        this.content = content;
+        this.parent = parent;
+    }
+
     public void changeQuestion(UpdateQuestionReq updateQuestionReq){
         this.title = updateQuestionReq.getTitle();
         this.content = updateQuestionReq.getContent();
     }
+
+    public void changeQuestion(UpdateAnswerReq updateAnswerReq){
+        this.title = updateAnswerReq.getTitle();
+        this.content = updateAnswerReq.getContent();
+    }
+
+    public void changeComplete(){
+        this.status = QuestionStatus.valueOf("COMPLETE");
+    }
+
+    public void changeAwating(){
+        this.status = QuestionStatus.valueOf("AWAITING");
+    }
+
 
 }

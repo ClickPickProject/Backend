@@ -77,6 +77,13 @@ public class QuestionController {
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }
 
+    /* 답변 상태 질문 목록 확인 */
+    @GetMapping("/api/question/list/{status}")
+    public ResponseEntity viewQuestionList(@PathVariable("status")String status,@RequestParam(required = false, defaultValue = "0", value = "page")int page){
+        ResponseEntity responseEntity = questionService.listStatusQuestion(status, page);
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
+    }
+
     /* 작성한 질문 목록 확인 */
     @GetMapping("api/member/question/list")
     public ResponseEntity viewMyQuestionList(@RequestParam(required = false, defaultValue = "0", value = "page")int page){

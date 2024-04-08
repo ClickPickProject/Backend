@@ -1,21 +1,20 @@
 package com.clickpick.service;
 
-import com.clickpick.domain.Admin;
-import com.clickpick.domain.QuestionPost;
-import com.clickpick.domain.QuestionStatus;
-import com.clickpick.domain.User;
-import com.clickpick.dto.comment.ViewCommentRes;
+import com.clickpick.domain.*;
+import com.clickpick.dto.post.ViewPostListRes;
 import com.clickpick.dto.question.*;
 import com.clickpick.repository.AdminRepository;
 import com.clickpick.repository.QuestionPostRepository;
 import com.clickpick.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -146,14 +145,47 @@ public class QuestionService {
 
     }
 
-    /* 질문 목록 확인 */
+    /* 전체 질문 목록 확인 */
     public ResponseEntity listQuestion(int page) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 이메일(아이디)입니다.");
+        PageRequest pageRequest = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC,"createAt"));
+        Page<QuestionPost> pagingResult = questionPostRepository.findQuestion(pageRequest);
+        Page<ViewQuestionListRes> map = pagingResult.map(questionPost -> new ViewQuestionListRes(questionPost));
+        return ResponseEntity.status(HttpStatus.OK).body(map);
+    }
+
+    /* 답변 상태 질문 목록 확인 */
+    public ResponseEntity listStatusQuestion(String status, int page) {
+        PageRequest pageRequest = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC,"createAt"));
+        if(isEnumValue(status)){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("잘못된 요청입니다.");
+        }
+        QuestionStatus questionStatus = QuestionStatus.valueOf(status);
+        Page<QuestionPost> pagingResult = questionPostRepository.findQuestionStatus(questionStatus, pageRequest);
+        Page<ViewQuestionListRes> map = pagingResult.map(questionPost -> new ViewQuestionListRes(questionPost));
+        return ResponseEntity.status(HttpStatus.OK).body(map);
     }
 
     /* 작성한 질문 목록 확인 */
     public ResponseEntity listMyQuestion(String userId, int page) {
+        Optional<User> userResult = userRepository.findById(userId);
+        if(userResult.isPresent()){
+            PageRequest pageRequest = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC,"createAt"));
+            Page<QuestionPost> pagingResult = questionPostRepository.findUser(userId, pageRequest);
+            Page<ViewQuestionListRes> map = pagingResult.map(questionPost -> new ViewQuestionListRes(questionPost));
+            return ResponseEntity.status(HttpStatus.OK).body(map);
+
+        }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 이메일(아이디)입니다.");
     }
 
+
+    public static boolean isEnumValue(String status) {
+        try {
+            // Enum.valueOf() 메서드를 사용하여 입력값이 Enum 타입에 속하는지 확인
+            QuestionStatus questionStatus = Enum.valueOf(QuestionStatus.class, status);
+            return false; // 속한다면 false 반환
+        } catch (IllegalArgumentException e) {
+            return true; // 속하지 않는다면 true 반환
+        }
+    }
 }

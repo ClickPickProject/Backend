@@ -1,4 +1,25 @@
 package com.clickpick.dto.question;
 
+import com.clickpick.domain.QuestionPost;
+import lombok.Data;
+
+import java.time.LocalDateTime;
+
+@Data
 public class ViewQuestionListRes {
+    private Long questionId;
+    private String userId;
+    private String nickname;
+    private String title;
+    private LocalDateTime createAt;
+    private String status;
+
+    public ViewQuestionListRes(QuestionPost questionPost) {
+        this.questionId = questionPost.getId();
+        this.userId = questionPost.getUser().getId();
+        this.nickname = questionPost.getUser().getNickname();
+        this.title = questionPost.getTitle();
+        this.createAt = questionPost.getCreateAt();
+        this.status = questionPost.getStatus().toString();
+    }
 }

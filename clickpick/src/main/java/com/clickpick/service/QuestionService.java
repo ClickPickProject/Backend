@@ -4,10 +4,8 @@ import com.clickpick.domain.Admin;
 import com.clickpick.domain.QuestionPost;
 import com.clickpick.domain.QuestionStatus;
 import com.clickpick.domain.User;
-import com.clickpick.dto.question.CreateAnswerReq;
-import com.clickpick.dto.question.CreateQuestionReq;
-import com.clickpick.dto.question.UpdateAnswerReq;
-import com.clickpick.dto.question.UpdateQuestionReq;
+import com.clickpick.dto.comment.ViewCommentRes;
+import com.clickpick.dto.question.*;
 import com.clickpick.repository.AdminRepository;
 import com.clickpick.repository.QuestionPostRepository;
 import com.clickpick.repository.UserRepository;
@@ -17,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -84,7 +84,7 @@ public class QuestionService {
         if(adminResult.isPresent()){
             Optional<QuestionPost> questionResult = questionPostRepository.findById(questionId);
             if(questionResult.isPresent()){
-                QuestionPost questionPost = new QuestionPost(adminResult.get(), createAnswerReq.getTitle(), createAnswerReq.getContent(), questionResult.get());
+                QuestionPost questionPost = new QuestionPost(adminResult.get(), createAnswerReq.getTitle(), createAnswerReq.getContent(), questionResult.get(), "ANSWER");
                 questionPostRepository.save(questionPost);
                 questionResult.get().changeComplete();
                 return ResponseEntity.status(HttpStatus.OK).body("답변을 작성하였습니다.");
@@ -103,7 +103,7 @@ public class QuestionService {
             if(questionResult.isPresent()){
                 questionPostRepository.delete(questionResult.get());
                 Optional<QuestionPost> parentQuestion = questionPostRepository.findById(questionResult.get().getParent().getId());
-                parentQuestion.get().changeAwating();
+                parentQuestion.get().changeAwaiting();
                 return ResponseEntity.status(HttpStatus.OK).body("답변을 삭제하였습니다.");
             }
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("삭제할 수 없는 답변입니다.");
@@ -130,7 +130,20 @@ public class QuestionService {
 
     /* 질문 상세 확인 */
     public ResponseEntity selectQuestion(Long questionId) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 이메일(아이디)입니다.");
+        Optional<QuestionPost> questionResult = questionPostRepository.findById(questionId);
+        if(questionResult.isPresent() && questionResult.get().getParent() == null){ // 질문인 경우만, 답변이면 안됌
+            ViewQuestionRes viewQuestionRes = new ViewQuestionRes(questionResult.get());
+            Optional<List<QuestionPost>> answerResult = questionPostRepository.findAnswerQuestion(questionId);
+            if(answerResult.isPresent()){
+                for(QuestionPost questionPost : answerResult.get()){
+                    ViewAnswerRes answer = new ViewAnswerRes(questionPost);
+                    viewQuestionRes.addAnswer(answer);
+                }
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(viewQuestionRes);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 질문입니다.");
+
     }
 
     /* 질문 목록 확인 */

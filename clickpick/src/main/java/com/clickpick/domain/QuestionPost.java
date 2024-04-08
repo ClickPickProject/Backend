@@ -59,11 +59,12 @@ public class QuestionPost {
         this.parent = parent;
     }
 
-    public QuestionPost(Admin admin, String title, String content, QuestionPost parent) {
+    public QuestionPost(Admin admin, String title, String content, QuestionPost parent, String status) {
         this.admin = admin;
         this.title = title;
         this.content = content;
         this.parent = parent;
+        this.status = QuestionStatus.valueOf(status);
     }
 
     public void changeQuestion(UpdateQuestionReq updateQuestionReq){
@@ -80,7 +81,7 @@ public class QuestionPost {
         this.status = QuestionStatus.valueOf("COMPLETE");
     }
 
-    public void changeAwating(){
+    public void changeAwaiting(){
         this.status = QuestionStatus.valueOf("AWAITING");
     }
 

@@ -1,9 +1,9 @@
 package com.clickpick.service;
 
 import com.clickpick.domain.*;
-import com.clickpick.dto.post.ViewPostListRes;
 import com.clickpick.dto.question.*;
 import com.clickpick.repository.AdminRepository;
+import com.clickpick.repository.ProfileImageRepository;
 import com.clickpick.repository.QuestionPostRepository;
 import com.clickpick.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +26,7 @@ public class QuestionService {
     private final QuestionPostRepository questionPostRepository;
     private final UserRepository userRepository;
     private final AdminRepository adminRepository;
+    private final ProfileImageRepository profileImageRepository;
 
 
     /* 질문 작성 */

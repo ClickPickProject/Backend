@@ -14,14 +14,16 @@ public class ViewAnswerRes {
     private String title;
     private String content;
     private LocalDateTime date;
+    private String profileUrl;
 
     public ViewAnswerRes(QuestionPost questionPost) {
         this.answerId = questionPost.getId();
         this.questionId = questionPost.getParent().getId();
         this.adminId = questionPost.getAdmin().getId();
-        this.nickname = "ADMIN";
+        this.nickname = "ADMIN"; // 관리자 닉네임 고정
         this.title = questionPost.getTitle();
         this.content = questionPost.getContent();
         this.date = questionPost.getCreateAt();
+        this.profileUrl = "http://clickpick.iptime.org:8080/profile/images/admin.png"; // 관리자 프로필 이미지 고정
     }
 }

@@ -16,6 +16,7 @@ public class ViewQuestionRes {
     private String content;
     private String status;
     private LocalDateTime date;
+    private String profileUrl;
     private List<ViewAnswerRes> answer = new ArrayList<>();
 
     public ViewQuestionRes(QuestionPost questionPost) {
@@ -26,6 +27,12 @@ public class ViewQuestionRes {
         this.content = questionPost.getContent();
         this.status = questionPost.getStatus().toString();
         this.date = questionPost.getCreateAt();
+        if(questionPost.getUser().getProfileImage() == null){
+            this.profileUrl = "http://clickpick.iptime.org:8080/profile/images/default.png";
+        }
+        else {
+            this.profileUrl = questionPost.getUser().getProfileImage().getReturnUrl();
+        }
     }
 
     public void addAnswer(ViewAnswerRes viewAnswerRes){

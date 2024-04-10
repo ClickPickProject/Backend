@@ -37,11 +37,19 @@ public class MapController {
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }
 
-    /* 즐겨찾기 목록 조회 */
+    /* 해당 영역(지도) 즐겨찾기 목록 조회 */
     @PostMapping("/api/member/map/bookmark/list")
     public ResponseEntity viewBookmark(@RequestBody @Valid MarkerReq markerReq){
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         ResponseEntity responseEntity = mapService.viewBookmarkPosition(userId, markerReq);
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
+    }
+
+    /* 전체 즐겨찾기 목록 조회 */
+    @GetMapping("/api/member/map/bookmark/list")
+    public ResponseEntity viewBookmark(){
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        ResponseEntity responseEntity = mapService.viewALlBookmarkPosition(userId);
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }
 

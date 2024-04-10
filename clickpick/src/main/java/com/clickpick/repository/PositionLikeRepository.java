@@ -19,4 +19,8 @@ public interface PositionLikeRepository extends JpaRepository<PositionLike, Long
     Optional<List<PositionLike>> findUser(@Param("userId")String userId, @Param("south") double south, @Param("west") double west, @Param("north") double north, @Param("east") double east);
 
 
+    // 유저의 전체 즐겨찾기 검색
+    @Query("select pl from PositionLike pl where pl.user.id =:userId")
+    Optional<List<PositionLike>> findUserLike(@Param("userId")String userId);
+
 }

@@ -77,11 +77,32 @@ public class MapService {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body("회원만 사용 가능한 기능입니다.");
     }
 
-    /* 장소 즐겨찾기 리스트 */
+    /* 장소 즐겨찾기 리스트 (지도 표시 범위) */
     public ResponseEntity viewBookmarkPosition(String userId, MarkerReq makerReq){
         Optional<User> userResult = userRepository.findById(userId);
         if(userResult.isPresent()){
             Optional<List<PositionLike>> positionLikeResult = positionLikeRepository.findUser(userId, makerReq.getSouth(), makerReq.getWest(), makerReq.getNorth(), makerReq.getEast());
+            List<LikedPositionRes> likedPositionResList = new ArrayList<>();
+            if(positionLikeResult.isPresent()){
+                List<PositionLike> positionLikes = positionLikeResult.get();
+                for(PositionLike positionLike : positionLikes){
+                    LikedPositionRes likedPositionRes = new LikedPositionRes(positionLike);
+                    likedPositionResList.add(likedPositionRes);
+                }
+
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(likedPositionResList);
+
+        }
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("회원만 사용 가능한 기능입니다.");
+    }
+
+    /* 장소 즐겨찾기 리스트 (전체) */
+    public ResponseEntity viewALlBookmarkPosition(String userId){
+        Optional<User> userResult = userRepository.findById(userId);
+        if(userResult.isPresent()){
+            Optional<List<PositionLike>> positionLikeResult = positionLikeRepository.findUserLike(userId);
             List<LikedPositionRes> likedPositionResList = new ArrayList<>();
             if(positionLikeResult.isPresent()){
                 List<PositionLike> positionLikes = positionLikeResult.get();

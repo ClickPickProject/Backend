@@ -9,4 +9,6 @@ public class UpdateQuestionReq {
     private String title;
     @NotBlank
     private String content;
+    @NotBlank
+    private String lock;
 }

@@ -66,7 +66,8 @@ public class QuestionController {
     /* 질문 상세 확인 */
     @GetMapping("/api/question/{questionId}")
     public ResponseEntity viewQuestion(@PathVariable("questionId")Long questionId){
-        ResponseEntity responseEntity = questionService.selectQuestion(questionId);
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        ResponseEntity responseEntity = questionService.selectQuestion(userId, questionId);
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }
 

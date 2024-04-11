@@ -52,11 +52,16 @@ public class QuestionPost {
     @ColumnDefault("'AWAITING'")
     private QuestionStatus status;
 
-    public QuestionPost(User user, String title, String content, QuestionPost parent) {
+    @Enumerated(EnumType.STRING)
+    @ColumnDefault("'UNLOCK'")
+    private QuestionLock lockStatus; // 질문 공개, 비공개
+
+    public QuestionPost(User user, String title, String content, QuestionPost parent, String lock) {
         this.user = user;
         this.title = title;
         this.content = content;
         this.parent = parent;
+        this.lockStatus = QuestionLock.valueOf(lock);
     }
 
     public QuestionPost(Admin admin, String title, String content, QuestionPost parent, String status) {
@@ -70,6 +75,7 @@ public class QuestionPost {
     public void changeQuestion(UpdateQuestionReq updateQuestionReq){
         this.title = updateQuestionReq.getTitle();
         this.content = updateQuestionReq.getContent();
+        this.lockStatus = QuestionLock.valueOf(updateQuestionReq.getLock());
     }
 
     public void changeQuestion(UpdateAnswerReq updateAnswerReq){

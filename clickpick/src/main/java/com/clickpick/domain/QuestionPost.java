@@ -56,7 +56,7 @@ public class QuestionPost {
     @ColumnDefault("'UNLOCK'")
     private QuestionLock lockStatus; // 질문 공개, 비공개
 
-    public QuestionPost(User user, String title, String content, QuestionPost parent, String lock) {
+    public QuestionPost(User user, String title, String content, QuestionPost parent, String lock) { //질문 잓어
         this.user = user;
         this.title = title;
         this.content = content;
@@ -64,12 +64,20 @@ public class QuestionPost {
         this.lockStatus = QuestionLock.valueOf(lock);
     }
 
-    public QuestionPost(Admin admin, String title, String content, QuestionPost parent, String status) {
+    public QuestionPost(User user, String title, String content, QuestionPost parent, QuestionStatus questionStatus){ // 추가 답변(사용자용)
+        this.user = user;
+        this.title = title;
+        this.content = content;
+        this.parent = parent;
+        this.status = questionStatus;
+    }
+
+    public QuestionPost(Admin admin, String title, String content, QuestionPost parent, QuestionStatus questionStatus) { // 추가 답변(관리자용)
         this.admin = admin;
         this.title = title;
         this.content = content;
         this.parent = parent;
-        this.status = QuestionStatus.valueOf(status);
+        this.status = questionStatus;
     }
 
     public void changeQuestion(UpdateQuestionReq updateQuestionReq){

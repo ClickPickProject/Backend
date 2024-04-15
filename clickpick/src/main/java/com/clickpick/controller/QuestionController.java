@@ -43,9 +43,19 @@ public class QuestionController {
     @PostMapping("/api/admin/{questionId}/answer")
     public ResponseEntity uploadAnswer(@PathVariable("questionId")Long questionId, @RequestBody @Valid CreateAnswerReq createAnswerReq){
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        ResponseEntity responseEntity = questionService.createAnswer(userId,questionId, createAnswerReq);
+        ResponseEntity responseEntity = questionService.createAnswer(userId, questionId, createAnswerReq);
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }
+
+    /* 추가 답변 작성 */
+    @PostMapping("/api/member/{questionId}/{answerId}/reanswer")
+    public ResponseEntity uploadReAnswer(@PathVariable("questionId")Long questionId,@PathVariable("answerId")Long answerId, @RequestBody @Valid CreateAnswerReq createAnswerReq){
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        ResponseEntity responseEntity = questionService.createReAnswer(userId, questionId ,answerId, createAnswerReq);
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
+    }
+
+    /* 추가 답변 수정 */
 
     /* 답변 수정 */
     @PostMapping("/api/admin/answer/{answerId}")

@@ -26,7 +26,6 @@ public class QuestionService {
     private final QuestionPostRepository questionPostRepository;
     private final UserRepository userRepository;
     private final AdminRepository adminRepository;
-    private final ProfileImageRepository profileImageRepository;
 
 
     /* 질문 작성 */
@@ -84,7 +83,7 @@ public class QuestionService {
         if(adminResult.isPresent()){
             Optional<QuestionPost> questionResult = questionPostRepository.findById(questionId);
             if(questionResult.isPresent()){
-                QuestionPost questionPost = new QuestionPost(adminResult.get(), createAnswerReq.getTitle(), createAnswerReq.getContent(), questionResult.get(), "ANSWER");
+                QuestionPost questionPost = new QuestionPost(adminResult.get(), createAnswerReq.getTitle(), createAnswerReq.getContent(), questionResult.get(), QuestionStatus.ANSWER);
                 questionPostRepository.save(questionPost);
                 questionResult.get().changeComplete();
                 return ResponseEntity.status(HttpStatus.OK).body("답변을 작성하였습니다.");
@@ -92,6 +91,32 @@ public class QuestionService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("질문이 존재하지 않습니다.");
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body("관리자만 사용가능한 기능입니다.");
+    }
+
+    /* 추가 답변 작성 */
+    @Transactional
+    public ResponseEntity createReAnswer(String userId, Long questionId, Long answerId, CreateAnswerReq createAnswerReq) {
+        Optional<User> userResult = userRepository.findById(userId);
+        if(userResult.isPresent()){
+            Optional<QuestionPost> questionResult = questionPostRepository.findQuestionUser(questionId, userId); // 추가 질문을 할 답변이 있는지 확인
+            Optional<QuestionPost> answerResult = questionPostRepository.findById(answerId);
+            if(questionResult.isPresent()){
+                QuestionPost questionPost = new QuestionPost(userResult.get(), createAnswerReq.getTitle(), createAnswerReq.getContent(), answerResult.get(), QuestionStatus.ANSWER);
+                questionPostRepository.save(questionPost);
+                return ResponseEntity.status(HttpStatus.OK).body("추가 질문을 작성하였습니다.");
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("본인이 작성한 질문이 아닙니다.");
+        } else if (userResult.isEmpty())
+        {
+            Optional<Admin> adminResult = adminRepository.findById(userId);
+            if(adminResult.isPresent()){
+                Optional<QuestionPost> questionResult = questionPostRepository.findById(answerId); // 추가 답변을 할 답변이 있는지 확인
+                QuestionPost questionPost = new QuestionPost(adminResult.get(), createAnswerReq.getTitle(), createAnswerReq.getContent(), questionResult.get(), QuestionStatus.ANSWER);
+                questionPostRepository.save(questionPost);
+                return ResponseEntity.status(HttpStatus.OK).body("추가 답변을 작성하였습니다.");
+            }
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("로그인 이후 사용할 수 있습니다.");
     }
 
     /* 답변 삭제 */
@@ -144,6 +169,19 @@ public class QuestionService {
             if(answerResult.isPresent()){
                 for(QuestionPost questionPost : answerResult.get()){
                     ViewAnswerRes answer = new ViewAnswerRes(questionPost);
+                    Optional<List<QuestionPost>> reAnswerResult = questionPostRepository.findAnswerQuestion(questionPost.getId());
+                    if(reAnswerResult.isPresent()){
+                        for(QuestionPost findReAnswer : reAnswerResult.get()){
+                            if(findReAnswer.getUser() != null){ // 추가 질문인 경우(사용자)
+                                ViewAnswerRes reQuestion = new ViewAnswerRes(findReAnswer, "user" );
+                                answer.addReAnswer(reQuestion);
+                            }
+                            else {
+                                ViewAnswerRes reAnswer = new ViewAnswerRes(findReAnswer);
+                                answer.addReAnswer(reAnswer);
+                            }
+                        }
+                    }
                     viewQuestionRes.addAnswer(answer);
                 }
             }

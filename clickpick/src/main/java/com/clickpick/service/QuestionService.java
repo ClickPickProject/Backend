@@ -105,7 +105,7 @@ public class QuestionService {
                 questionPostRepository.save(questionPost);
                 return ResponseEntity.status(HttpStatus.OK).body("추가 질문을 작성하였습니다.");
             }
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("본인이 작성한 질문이 아닙니다.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("본인이 작성한 질문이 아닙니다.");
         } else if (userResult.isEmpty())
         {
             Optional<Admin> adminResult = adminRepository.findById(userId);

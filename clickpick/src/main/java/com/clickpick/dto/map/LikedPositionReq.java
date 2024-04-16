@@ -12,4 +12,10 @@ public class LikedPositionReq {
     private double yPosition;
     @NotBlank
     private String status;
+    @NotBlank
+    private String name;
+    @NotBlank
+    private String address;
+    private String category;
+    private String homepage;
 }

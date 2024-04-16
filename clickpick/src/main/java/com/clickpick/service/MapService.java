@@ -63,7 +63,7 @@ public class MapService {
         Optional<User> userResult = userRepository.findById(userId);
         if(userResult.isPresent()){
             Optional<PositionLike> positionResult = positionLikeRepository.findPosition(likedPositionReq.getXPosition(), likedPositionReq.getYPosition());
-            PositionLike positionLike = new PositionLike(userResult.get(), likedPositionReq.getXPosition(), likedPositionReq.getYPosition(), likedPositionReq.getStatus());
+            PositionLike positionLike = new PositionLike(userResult.get(), likedPositionReq.getXPosition(), likedPositionReq.getYPosition(), likedPositionReq.getStatus(), likedPositionReq.getName(), likedPositionReq.getAddress(), likedPositionReq.getCategory(), likedPositionReq.getHomepage());
             if(positionResult.isPresent()){
                 positionLikeRepository.delete(positionResult.get());
                 return ResponseEntity.status(HttpStatus.OK).body("즐겨찾기에서 삭제하였습니다.");

@@ -31,11 +31,22 @@ public class PositionLike {
     @ColumnDefault("'LIKE'")
     private PositionStatus positionStatus;
 
-    public PositionLike(User user, double xPosition, double yPosition, String positionStatus) {
+    @Column(nullable = false)
+    private String name;
+    @Column(nullable = false)
+    private String address;
+    private String category;
+    private String homepage;
+
+    public PositionLike(User user, double xPosition, double yPosition, String positionStatus, String name, String address, String category, String homepage) {
         this.user = user;
         this.xPosition = xPosition;
         this.yPosition = yPosition;
         this.positionStatus = PositionStatus.valueOf(positionStatus);
+        this.name = name;
+        this.address = address;
+        this.category = category;
+        this.homepage = homepage;
     }
 }
 

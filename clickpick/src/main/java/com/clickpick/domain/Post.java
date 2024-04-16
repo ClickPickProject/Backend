@@ -30,6 +30,10 @@ public class Post {
     @Column(nullable = false)
     private LocalDateTime createAt;
     private String position;
+    @ColumnDefault("200.0") // -90 ~ 90 까지 존재
+    private double xPosition;
+    @ColumnDefault("200.0") // -180 ~ 180 까지 존재
+    private double yPosition;
     @Column(nullable = false, length = 50000)
     private String content;
     @Column(nullable = false)
@@ -59,18 +63,22 @@ public class Post {
     // 이미지 넣어야함
 
 
-    public Post(User user, String position, String content, String title, String category) {
+    public Post(User user, String position, double xPosition, double yPosition, String content, String title, String category) {
         this.user = user;
+        this.xPosition = xPosition;
+        this.yPosition = yPosition;
         this.position = position;
         this.content = content;
         this.title = title;
         this.postCategory = PostCategory.valueOf(category);
     }
 
-    public void changePost(String title, String content, String position, String category){
+    public void changePost(String title, String content, String position, double xPosition, double yPosition, String category){
         this.title = title;
         this.content = content;
         this.position = position;
+        this.xPosition = xPosition;
+        this.yPosition = yPosition;
         this.postCategory = PostCategory.valueOf(category);
     }
 

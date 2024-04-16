@@ -180,7 +180,7 @@ public class ImageService {
         String filePath = uploadPath + "/profile";
 
         ProfileImage profileImage = new ProfileImage(user, fileName, filePath, file.getSize());
-        String url = dns + "/post/images/" + fileName;
+        String url = dns + "/profile/images/" + fileName;
         profileImage.addReturnUrl(url);
         profileImageRepository.save(profileImage);
 

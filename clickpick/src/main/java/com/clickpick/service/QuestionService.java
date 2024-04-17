@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.List;
 import java.util.Optional;
@@ -122,35 +123,41 @@ public class QuestionService {
     /* 답변 삭제 */
     @Transactional
     public ResponseEntity deleteAnswer(String userId, Long answerId) {
-        Optional<Admin> adminResult = adminRepository.findById(userId);
-        if(adminResult.isPresent()){
-            Optional<QuestionPost> questionResult = questionPostRepository.findAnswerAdmin(answerId, userId);
-            if(questionResult.isPresent()){
-                questionPostRepository.delete(questionResult.get());
-                Optional<QuestionPost> parentQuestion = questionPostRepository.findById(questionResult.get().getParent().getId());
+        Optional<QuestionPost> adminQuestionResult = questionPostRepository.findAnswerAdmin(answerId, userId);
+        Optional<QuestionPost> userQuestionResult = questionPostRepository.findQuestionUser(answerId, userId);
+        if(adminQuestionResult.isPresent()){
+            questionPostRepository.delete(adminQuestionResult.get());
+            TransactionAspectSupport.currentTransactionStatus().flush();
+            Optional<QuestionPost> parentQuestion = questionPostRepository.findById(adminQuestionResult.get().getParent().getId());
+            if(parentQuestion.get().getAnswers().size() == 0){
                 parentQuestion.get().changeAwaiting();
-                return ResponseEntity.status(HttpStatus.OK).body("답변을 삭제하였습니다.");
             }
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("삭제할 수 없는 답변입니다.");
+            return ResponseEntity.status(HttpStatus.OK).body("답변을 삭제하였습니다.");
+        } else if (userQuestionResult.isPresent()) {
+            questionPostRepository.delete(userQuestionResult.get());
+            return ResponseEntity.status(HttpStatus.OK).body("답변을 삭제하였습니다.");
         }
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("관리자만 사용가능한 기능입니다.");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("삭제할 수 없는 답변입니다.");
+
+
+
     }
 
     /* 답변 수정 */
     @Transactional
     public ResponseEntity renewAnswer(String userId, Long answerId, UpdateAnswerReq updateAnswerReq) {
-        Optional<Admin> adminResult = adminRepository.findById(userId);
-        if(adminResult.isPresent()){
-            Optional<QuestionPost> questionResult = questionPostRepository.findAnswerAdmin(answerId, userId);
-            if(questionResult.isPresent()){
-                QuestionPost questionPost = questionResult.get();
-                questionPost.changeQuestion(updateAnswerReq);
-                return ResponseEntity.status(HttpStatus.OK).body("답변을 수정하였습니다.");
-            }
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("수정할 수 없는 답변입니다.");
-
+        Optional<QuestionPost> adminQuestionResult = questionPostRepository.findAnswerAdmin(answerId, userId);
+        Optional<QuestionPost> userQuestionResult = questionPostRepository.findQuestionUser(answerId, userId);
+        if(adminQuestionResult.isPresent()){
+            QuestionPost questionPost = adminQuestionResult.get();
+            questionPost.changeQuestion(updateAnswerReq);
+            return ResponseEntity.status(HttpStatus.OK).body("답변을 수정하였습니다.");
+        } else if (userQuestionResult.isPresent()) {
+            QuestionPost questionPost = userQuestionResult.get();
+            questionPost.changeQuestion(updateAnswerReq);
+            return ResponseEntity.status(HttpStatus.OK).body("답변을 수정하였습니다.");
         }
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("관리자만 사용가능한 기능입니다.");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("수정할 수 없는 답변입니다.");
     }
 
     /* 질문 상세 확인 */

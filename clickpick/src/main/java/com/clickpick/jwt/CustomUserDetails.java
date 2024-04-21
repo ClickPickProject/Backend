@@ -1,6 +1,5 @@
 package com.clickpick.jwt;
 
-import com.clickpick.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,6 +29,8 @@ public class CustomUserDetails implements UserDetails {
     public String getPassword() {
         return user.getPassword();
     }
+
+    public String getNickname() {return user.getNickname();}
 
     @Override
     public String getUsername() {

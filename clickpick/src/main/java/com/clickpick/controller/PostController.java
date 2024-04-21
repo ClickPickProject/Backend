@@ -1,13 +1,13 @@
 package com.clickpick.controller;
 
 import com.clickpick.dto.post.CreatePostReq;
+import com.clickpick.dto.post.ReportPostReq;
 import com.clickpick.dto.post.UpdatePostReq;
 import com.clickpick.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -46,7 +46,8 @@ public class PostController {
     /* 게시글 상세 조회 */
     @GetMapping("/api/post/{postId}")
     public ResponseEntity viewPost(@PathVariable("postId")Long postId){
-        ResponseEntity responseEntity = postService.selectPost(postId);
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        ResponseEntity responseEntity = postService.selectPost(userId, postId);
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }
 
@@ -65,14 +66,6 @@ public class PostController {
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }
 
-    /* 자신이 작성한 게시글 리스트 조회 */
-    @GetMapping("/api/member/post/list")
-    public ResponseEntity viewMyPostList(@RequestParam(required = false, defaultValue = "0", value = "page")int page){
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        ResponseEntity responseEntity = postService.myListPost(page,userId);
-        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
-    }
-
     /* 베스트 게시글 리스트 조회 */
     @GetMapping("/api/post/list/best")
     public ResponseEntity viewBestPostList(){
@@ -80,8 +73,46 @@ public class PostController {
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }
 
+    /* 게시글 작성자의 닉네임 검색 */
+    @GetMapping("/api/post/nickname")
+    public ResponseEntity searchNickname(@RequestParam(required = false, defaultValue = "0", value = "page")int page, String nickname){
+        ResponseEntity responseEntity = postService.findUserNickname(page, nickname);
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
+    }
 
+    /* 게시글 내용 검색 */
+    @GetMapping("/api/post/content")
+    public ResponseEntity searchContent(@RequestParam(required = false, defaultValue = "0", value = "page")int page, String content){
+        ResponseEntity responseEntity = postService.findContent(page, content);
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
+    }
+    /* 게시글 제목 검색 */
+    @GetMapping("/api/post/title")
+    public ResponseEntity searchTitle(@RequestParam(required = false, defaultValue = "0", value = "page")int page, String title){
+        ResponseEntity responseEntity = postService.findTitle(page, title);
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
+    }
+    /* 게시글 해시태그 검색 */
+    @GetMapping("/api/post/hashtag")
+    public ResponseEntity searchHashtag(@RequestParam(required = false, defaultValue = "0", value = "page")int page, String hashtag){
+        ResponseEntity responseEntity = postService.findHashtag(page, hashtag);
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
+    }
 
+    /* 게시글 카테고리 정렬 */
+    @GetMapping("/api/post/category")
+    public ResponseEntity searchCategory(@RequestParam(required = false, defaultValue = "0", value = "page")int page, String category){
+        ResponseEntity responseEntity = postService.findCategory(page, category);
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
+    }
+
+    /* 게시글 신고 */
+    @PostMapping("/api/member/report/post")
+    public ResponseEntity reportPost(@RequestBody @Valid ReportPostReq reportPostReq){
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        ResponseEntity responseEntity = postService.complainPost(userId, reportPostReq);
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
+    }
 
 
 }

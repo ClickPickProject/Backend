@@ -1,18 +1,21 @@
 package com.clickpick.controller;
 
 import com.clickpick.dto.user.*;
+import com.clickpick.service.PostService;
 import com.clickpick.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
+    private final PostService postService;
 
     /* 유저 회원 가입*/
     @PostMapping("/api/signup/user")
@@ -77,6 +80,72 @@ public class UserController {
     @PostMapping("/api/login/new-password")
     public ResponseEntity changePassword(@RequestBody @Valid ChangePasswordReq changePasswordReq){
         ResponseEntity responseEntity = userService.changeNewPassword(changePasswordReq);
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
+    }
+
+    /* 개인정보확인 */
+    @GetMapping("/api/member/userinfo")
+    public ResponseEntity viewUserInfo(){
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        ResponseEntity responseEntity = userService.checkUserInfo(userId);
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
+    }
+
+    /* 닉네임 변경 */
+    @GetMapping("/api/member/new-nickname/{nickname}")
+    public ResponseEntity changeNickname(@PathVariable("nickname") String nickname){
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        ResponseEntity responseEntity = userService.updateNewNickname(userId, nickname);
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
+    }
+
+    /* 전화번호 변경 */
+    @GetMapping("/api/member/new-phone-number/{phone-number}")
+    public ResponseEntity changePhoneNumber(@PathVariable("phone-number") String phoneNumber){
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        ResponseEntity responseEntity = userService.updateNewPhoneNumber(userId, phoneNumber);
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
+    }
+
+    /* 회원 탈퇴 */
+    @DeleteMapping("/api/member")
+    public ResponseEntity leaveUser(){
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        ResponseEntity responseEntity = userService.deleteUser(userId);
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
+    }
+
+    /**/
+
+    /* 작성한 게시글 리스트 조회 */
+    @GetMapping("/api/member/post/list")
+    public ResponseEntity viewMyPostList(@RequestParam(required = false, defaultValue = "0", value = "page")int page){
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        ResponseEntity responseEntity = postService.myPostList(page,userId);
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
+    }
+
+    /* 작성한 댓글 리스트 조회 */
+    @GetMapping("/api/member/comment/list")
+    public ResponseEntity viewMyCommentList(@RequestParam(required = false,defaultValue = "0", value = "page")int page){
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        ResponseEntity responseEntity = postService.myCommentList(page,userId);
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
+    }
+
+    /* 좋아요 한 게시글 확인 */
+    @GetMapping("/api/member/liked/post/list")
+    public ResponseEntity viewMyLikePostList(@RequestParam(required = false,defaultValue = "0", value = "page")int page){
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        ResponseEntity responseEntity = postService.myLikePostList(page,userId);
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
+    }
+
+    /* 좋아요 한 댓글 확인 */
+    @GetMapping("/api/member/liked/comment/list")
+    public ResponseEntity viewMyLikeCommentList(@RequestParam(required = false,defaultValue = "0", value = "page")int page){
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        ResponseEntity responseEntity = postService.myLikeCommentList(page,userId);
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }
 

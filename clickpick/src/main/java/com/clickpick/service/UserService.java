@@ -1,43 +1,33 @@
 package com.clickpick.service;
 
 import com.clickpick.config.RedisUtil;
-import com.clickpick.domain.User;
+import com.clickpick.domain.*;
 import com.clickpick.dto.user.*;
-import com.clickpick.repository.UserRepository;
+import com.clickpick.repository.*;
 import com.google.gson.JsonObject;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final MailService mailService;
     private final RedisUtil redisUtil;
-
-    @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,MailService mailService, RedisUtil redisUtil) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.mailService = mailService;
-        this.redisUtil = redisUtil;
-    }
+    private final CommentRepository commentRepository;
 
 
-
-    /* 회원 가입
-    *  현재 아이디 중복 가입을 막기 위해 id 체크 하도록 설정됨
-    *  Front에서 모든 중복 및 빈칸 체크 후 가입버튼 활성화 한다면 해당 함수에서 중복체크 삭제 요망
-    * */
+    /* 회원 가입 */
     @Transactional
     public ResponseEntity join(SingUpReq singUpReq){
         String id = singUpReq.getId();
@@ -178,4 +168,76 @@ public class UserService {
 
 
     }
+
+    /* 개인정보 확인 */
+    public ResponseEntity checkUserInfo(String userId) {
+        Optional<User> userResult = userRepository.findById(userId);
+        if(userResult.isPresent()){
+            User user = userResult.get();
+            UserInfoRes userInfoRes = new UserInfoRes(user);
+            return ResponseEntity.status(HttpStatus.OK).body(userInfoRes);
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("회원만 사용 가능한 기능입니다.");
+    }
+
+    /* 닉네임 변경 */
+    @Transactional
+    public ResponseEntity updateNewNickname(String userId, String nickname){
+        Optional<User> userResult = userRepository.findById(userId);
+        if(userResult.isPresent()){
+            Optional<User> nicknameResult = userRepository.findByNickname(nickname);
+            if(nicknameResult.isPresent()){
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("존재하는 닉네임입니다.");
+            }
+            User user = userResult.get();
+            user.updateNickname(nickname);
+            return ResponseEntity.status(HttpStatus.OK).body("닉네임이 변경되었습니다.");
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("회원만 사용 가능한 기능입니다.");
+    }
+
+    /* 전화번호 변경 */
+    @Transactional
+    public ResponseEntity updateNewPhoneNumber(String userId, String phone){
+        Optional<User> userResult = userRepository.findById(userId);
+        if(userResult.isPresent()){
+            Optional<User> nicknameResult = userRepository.findByPhone(phone);
+            if(nicknameResult.isPresent()){
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("존재하는 전화번호입니다.");
+            }
+            User user = userResult.get();
+            user.updatePhone(phone);
+            return ResponseEntity.status(HttpStatus.OK).body("전화번호가 변경되었습니다.");
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("회원만 사용 가능한 기능입니다.");
+
+    }
+
+    /* 회원 탈퇴 */
+    @Transactional
+    public ResponseEntity deleteUser(String userId){
+        Optional<User> userResult = userRepository.findById(userId);
+        if(userResult.isPresent()){
+            User user = userResult.get();
+            // 게시글은 연쇄 삭제, 댓글은 대댓글이 있는 경우 삭제된 사용자로 변경?
+            Optional<List<Comment>> commentResult = commentRepository.findUserId(user.getId());
+            if(commentResult.isPresent()){
+                for(Comment comment : commentResult.get()){
+                    if(comment.getParent() == null && comment.getComments().size() > 0){
+                        Optional<User> deleteUser = userRepository.findById("delete@delete.com");
+                        User tempUser = deleteUser.get();
+                        comment.leaveUserComment(tempUser); // 대댓글 살리기 위함
+                        continue;
+                    }
+                    commentRepository.delete(comment);
+                }
+            }
+            userRepository.delete(user);
+
+
+            return ResponseEntity.status(HttpStatus.OK).body("회원탈퇴가 완료되었습니다.");
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("회원만 사용 가능한 기능입니다.");
+    }
+
 }

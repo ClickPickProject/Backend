@@ -1,10 +1,14 @@
 package com.clickpick.jwt;
 
 import com.clickpick.dto.user.LoginReq;
+import com.clickpick.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonObject;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -56,6 +60,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
         String username = customUserDetails.getUsername();
+        String nickname = customUserDetails.getNickname();
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
@@ -63,12 +68,17 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         String role = auth.getAuthority();
 
-        String token = jwtUtil.createJwt(username, role, 60000000L); // 3600000ms => 60분
-
         // String id = jwtUtil.getUsername(token); 아이디 값 추출
+
+        String token = jwtUtil.createJwt(username, role, 3600000L); // 3600000ms => 60분
+
         response.addHeader("Authorization", "Bearer " + token);
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().write("로그인 되었습니다.");
+        JsonObject jsonResponse = new JsonObject();
+        jsonResponse.addProperty("nickname", nickname );
+        jsonResponse.addProperty("message", "로그인 되었습니다.");
+        response.setContentType("application/json");
+        response.getWriter().write(jsonResponse.toString());
         response.getWriter().flush();
     }
 

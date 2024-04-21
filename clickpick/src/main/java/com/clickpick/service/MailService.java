@@ -5,7 +5,6 @@ import com.clickpick.config.RedisUtil;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -28,7 +27,6 @@ public class MailService {
         redisUtil.setDataExpire(code,id,60*5L);
         message.addRecipients(MimeMessage.RecipientType.TO, id);//보내는 대상
         message.setSubject("ClickPick 회원가입 이메일 인증");//제목
-
         String msgg = getString(code);
         message.setText(msgg, "utf-8", "html");//내용
         message.setFrom(new InternetAddress("taemin14215@gmail.com","ClickPick Admin"));//보내는 사람

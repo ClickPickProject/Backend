@@ -12,8 +12,8 @@ import java.util.Optional;
 public interface ReportCommentRepository extends JpaRepository<ReportComment, Long> {
 
 
-    //@Query("select rp from ReportComment rp where rp.reportedUser.id =:reportedUserId")
-    //Optional<ReportComment> findReportedUserID(@Param("reportedUserId")String reportedUserId);
+    @Query("select rp from ReportComment rp where rp.reportedUser.id =:reportedUserId")
+    Optional<ReportComment> findReportedUserID(@Param("reportedUserId")String reportedUserId);
 
     @Query("select rc from ReportComment rc where rc.reportedUser.nickname =:reportedUserNickname and rc.comment.id =:commentId ")
     Optional<ReportComment> findReportComment(@Param("reportedUserNickname")String reportedUserNickname, @Param("commentId") Long commentId);

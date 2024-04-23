@@ -7,10 +7,10 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class ViewNoticeReq {
+public class ViewNoticeRes {
 
     @NotBlank
-    private Long id;
+    private Long noticeId;
     private String admin;
     @NotBlank
     private String title;
@@ -18,9 +18,9 @@ public class ViewNoticeReq {
     private String content;
     private LocalDateTime createAt;
 
-    public ViewNoticeReq(String id, Notice notice){
-        this.id = notice.getId();
-        this.admin = notice.getAdmin().getId();
+    public ViewNoticeRes(Notice notice){
+        this.noticeId = notice.getId();
+        this.admin = "ADMIN";
         this.title = notice.getTitle();
         this.content = notice.getContent();
         this.createAt = notice.getCreateAt();

@@ -2,13 +2,12 @@ package com.clickpick.service;
 
 import com.clickpick.domain.*;
 import com.clickpick.dto.admin.CreateNoticeReq;
-import com.clickpick.dto.admin.GetNoticeListReq;
+import com.clickpick.dto.admin.NoticeListRes;
 import com.clickpick.dto.admin.UpdateNoticeReq;
-import com.clickpick.dto.admin.ViewNoticeReq;
+import com.clickpick.dto.admin.ViewNoticeRes;
 import com.clickpick.repository.AdminRepository;
 import com.clickpick.repository.NoticeRepository;
 import lombok.RequiredArgsConstructor;
-import org.aspectj.weaver.ast.Not;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -17,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -49,7 +47,8 @@ public class NoticeService {
 
         if(result.isPresent()){
             noticeRepository.delete(result.get());
-            return ResponseEntity.status(HttpStatus.OK).body("공지사항 삭제가 완료되었습니다. ");
+            System.out.println("result = " + result.get());
+            return ResponseEntity.status(HttpStatus.OK).body("공지사항 삭제가 완료되었습니다.");
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body("사용자가 삭제할 수 없는 게시글입니다.");
     }
@@ -61,9 +60,9 @@ public class NoticeService {
 
         if(result.isPresent()){
             /* 게시글 중 제목, 내용변경 */
-            //Optional<User> userResult = userRepository.findById(userId);
 
             Notice notice = result.get();
+            System.out.println("notice = " + notice);
 
             notice.ChangePost(updateNoticeReq.getTitle(), updateNoticeReq.getContent());
 
@@ -74,23 +73,21 @@ public class NoticeService {
 
 
     /* 공지글 리스트 */
-    @Transactional
     public ResponseEntity getNotice(int page) {
         PageRequest pageRequest = PageRequest.of(page, 10, Sort.by(Sort.Direction.ASC, "createAt"));
         Page<Notice> pagingResult = noticeRepository.findAll(pageRequest);
-        Page<GetNoticeListReq> map = pagingResult.map(notice -> new GetNoticeListReq(notice));
+        Page<NoticeListRes> map = pagingResult.map(notice -> new NoticeListRes(notice));
 
         return ResponseEntity.status(HttpStatus.OK).body(map);
     }
 
     /* 공지글 상세조회 */
-    @Transactional
     public ResponseEntity selectNotice(Long noticeId) {
         //들어온 noticeId로 공지글을 db에서 찾는다.
         Optional<Notice> noticeResult = noticeRepository.findById(noticeId);
         if(noticeResult.isPresent()){
             Notice notice = noticeResult.get();
-            ViewNoticeReq viewNoticeReq = new ViewNoticeReq(notice.getAdmin().getId(), notice);
+            ViewNoticeRes viewNoticeReq = new ViewNoticeRes(notice);
 
             return ResponseEntity.status(HttpStatus.OK).body(viewNoticeReq);
         }

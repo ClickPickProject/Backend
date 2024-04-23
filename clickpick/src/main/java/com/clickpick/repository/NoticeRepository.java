@@ -10,6 +10,6 @@ import java.util.Optional;
 
 public interface NoticeRepository extends JpaRepository<Notice, Long> {
 
-    @Query("select n from Notice n where n.admin.id =:adminId and n.id =:noticeId")
+    @Query("select n from Notice n where n.id =:noticeId and n.admin.id =:adminId")
     Optional<Notice> findAdminNotice(@Param("noticeId")Long noticeId, @Param("adminId")String adminId);
 }

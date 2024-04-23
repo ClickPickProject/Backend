@@ -27,4 +27,11 @@ public class Admin {
     @CreationTimestamp
     @Column(nullable = false)
     private LocalDateTime createAt;
+
+    public Admin(String id, String password, String name, String phone) {
+        this.id = id;
+        this.password = password;
+        this.name = name;
+        this.phone = phone;
+    }
 }

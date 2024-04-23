@@ -63,6 +63,11 @@ public class User {
 
     }
 
+   //feat/admin
+   public void changeStatus(UserStatus status) {
+       this.status = status;
+   }
+
     // 닉네임 변경 시 사용 함수
     public void updateNickname(String nickname){
         this.nickname = nickname;
@@ -72,6 +77,7 @@ public class User {
     public void updatePhone(String phone){
         this.phone = phone;
     }
+
 
 
 }

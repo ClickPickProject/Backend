@@ -49,11 +49,21 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("select p from Post p where p.title like %:searchTitle%")
     Page<Post> findTitle(@Param("searchTitle")String searchTitle, Pageable pageable);
 
+    // 해시태그 검색 쿼리
     @Query("select p from Post p join p.hashtags ht where ht.content =:searchHashtag")
     Page<Post> findHashtag(@Param("searchHashtag")String searchHashtag, Pageable pageable);
 
+    // 카테고리 검색 쿼리
     @Query("select p from Post p where p.postCategory =:searchCategory")
     Page<Post> findCategory(@Param("searchCategory") PostCategory searchCategory, Pageable pageable);
+
+    // 지도 영역 포함 게시글 검색
+    @Query("select p from Post p where p.xPosition >=:west and p.xPosition <=:east and p.yPosition >=:south and p.yPosition <=:north ORDER BY p.createAt DESC")
+    Optional<List<Post>> findBound(@Param("south") double south, @Param("west") double west, @Param("north") double north, @Param("east") double east);
+
+    // 좌표 검색 쿼리
+    @Query("select p from Post p where p.xPosition =:xPosition and p.yPosition =:yPosition")
+    Page<Post> findPosition(@Param("xPosition") double xPosition, @Param("yPosition") double yPosition, Pageable pageable);
 
 
 }

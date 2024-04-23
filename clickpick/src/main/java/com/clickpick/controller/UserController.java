@@ -29,7 +29,6 @@ public class UserController {
     public ResponseEntity duplicateId(@PathVariable("user_id")String userId) throws Exception {
         ResponseEntity responseEntity = userService.checkId(userId);
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
-
     }
 
     /* 닉네임 중복 체크 */
@@ -114,8 +113,6 @@ public class UserController {
         ResponseEntity responseEntity = userService.deleteUser(userId);
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }
-
-    /**/
 
     /* 작성한 게시글 리스트 조회 */
     @GetMapping("/api/member/post/list")

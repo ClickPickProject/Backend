@@ -1,6 +1,5 @@
 package com.clickpick.dto.post;
 
-
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.NoArgsConstructor;

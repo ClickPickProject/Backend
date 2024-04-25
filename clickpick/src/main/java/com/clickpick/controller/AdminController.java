@@ -27,9 +27,9 @@ public class AdminController {
     }
 
     /* 유저 리스트 확인 */
-    @GetMapping("/api/admin/manager/userlist")
-    public ResponseEntity getUserList(@RequestParam(required = false, defaultValue = "0", value = "page")int page){
-        ResponseEntity responseEntity = adminService.getUserList(page);
+    @GetMapping("/api/admin/userlist")
+    public ResponseEntity getUserList(@RequestParam(required = false, defaultValue = "0", value = "page")int page, @RequestParam(required = false, defaultValue = "all")String status){
+        ResponseEntity responseEntity = adminService.getUserList(page,status);
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }
 
@@ -47,14 +47,14 @@ public class AdminController {
 //    }
 
     /* 신고 게시글리스트 */
-    @GetMapping("/api/admin/manager/reportpostlist")
+    @GetMapping("/api/admin/reportpostlist")
     public ResponseEntity reportPostLIst(@RequestParam(required = false, defaultValue = "0", value = "page")int page){
         ResponseEntity responseEntity = adminService.getReportPostLIst(page);
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }
 
     /* 신고 댓글리스트 */
-    @GetMapping("/api/admin/manager/reportcommentlist")
+    @GetMapping("/api/admin/reportcommentlist")
     public ResponseEntity reportCommentLIst(@RequestParam(required = false, defaultValue = "0", value = "page")int page){
         ResponseEntity responseEntity = adminService.getReportCommentLIst(page);
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
@@ -63,7 +63,7 @@ public class AdminController {
 
 
     /* 댓글 신고된 유저 정지 시킴 */
-    @PostMapping("/api/admin/manager/commentban")
+    @PostMapping("/api/admin/commentban")
     public ResponseEntity banUserReportedComment(@RequestBody @Valid BanUserReq banUserReq) {
         // 유저를 정지시키는 로직을 구현
         String adminId = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -72,7 +72,7 @@ public class AdminController {
     }
 
     /* 게시물 신고된 유저 정지 시킴 */
-    @PostMapping("/api/admin/manager/postban")
+    @PostMapping("/api/admin/postban")
     public ResponseEntity banUserReportedPost(@RequestBody @Valid BanUserReq banUserReq) {
         // 유저를 정지시키는 로직을 구현
         String adminId = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -81,7 +81,7 @@ public class AdminController {
     }
 
     /* 정지 유저 리스트 */
-    @GetMapping("/api/admin/manager/banuserlist")
+    @GetMapping("/api/admin/banuserlist")
     public ResponseEntity getBanUsers(@RequestParam(required = false, defaultValue = "0", value = "page")int page) {
         // 정지된 유저 리스트를 가져오는 로직을 구현
         ResponseEntity responseEntity = adminService.banUserList(page);
@@ -89,7 +89,7 @@ public class AdminController {
     }
 
     /* 정지 유저 변경 -- 정지된 유저 리스트에서 정지된 상태를 정상 상태로 돌린다.즉, ban된 유저에서만 사용한다?  */
-    @PostMapping("/api/admin/manager/ban/{userid}")
+    @PostMapping("/api/admin/ban/{userid}")
     public ResponseEntity updateBanStatus(@PathVariable("userid") String userId) {
         // 정지된 유저의 상태를 변경하는 로직을 구현
         ResponseEntity responseEntity = adminService.updateBanStatus(userId);

@@ -13,7 +13,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -49,14 +48,25 @@ public class AdminService {
         }
     }
 
-    @Transactional
-    /* 유저 리스트 확인 */
-    public ResponseEntity getUserList(int page) {
-        PageRequest pageRequest = PageRequest.of(page, 10, Sort.by(Sort.Direction.ASC,"createAt"));
-        Page<User> pagingResult = userRepository.findAll(pageRequest);
-        Page<ViewUserListReq> map = pagingResult.map(user -> new ViewUserListReq(user));
 
-        return ResponseEntity.status(HttpStatus.OK).body(map);
+    /* 유저 리스트 확인 */
+    public ResponseEntity getUserList(int page, String status) {
+        PageRequest pageRequest = PageRequest.of(page, 10, Sort.by(Sort.Direction.ASC,"createAt"));
+        if(status.equals("all")){
+            Page<User> pagingResult = userRepository.findAll(pageRequest);
+            Page<ViewUserListRes> map = pagingResult.map(user -> new ViewUserListRes(user));
+            return ResponseEntity.status(HttpStatus.OK).body(map);
+        }
+        else{
+            if(isEnumValue(status.toUpperCase())){
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("검색하고자 하는 유저의 상태가 올바르지 않습니다.");
+            }
+            Page<User> pagingResult = userRepository.findStatus(UserStatus.valueOf(status.toUpperCase()), pageRequest);
+            Page<ViewUserListRes> map = pagingResult.map(user -> new ViewUserListRes(user));
+
+            return ResponseEntity.status(HttpStatus.OK).body(map);
+        }
+
     }
 
 //    /* --- 유저 단일 확인 */
@@ -156,11 +166,10 @@ public class AdminService {
     //아 report는 유저끼리 신고 된것이고.
     //여기서는 그냥 If문으로 정지 된것만 불러오면 되겠다.
     /* 정지 유저 리스트 */
-    @Transactional
     public ResponseEntity banUserList(int page) {
-        PageRequest pageRequest = PageRequest.of(page, 10, Sort.by(Sort.Direction.ASC,"createAt"));
-        Page<User> pagingResult = userRepository.findByStatus(UserStatus.BAN, pageRequest);
-        Page<ViewBanUserListReq> map = pagingResult.map(user -> new ViewBanUserListReq(user));
+        PageRequest pageRequest = PageRequest.of(page, 10, Sort.by(Sort.Direction.ASC,"startDate"));
+        Page<BanUser> banUserResult = banUserRepository.findAll(pageRequest);
+        Page<ViewBanUserListRes> map = banUserResult.map(banUser -> new ViewBanUserListRes(banUser));
 
         return ResponseEntity.status(HttpStatus.OK).body(map);
     }
@@ -207,6 +216,19 @@ public class AdminService {
 
     /* 정지 유저 단일?? 정지 사유, 정지 게시물 */
 
+
+
+
+
+    public static boolean isEnumValue(String status) {
+        try {
+            // Enum.valueOf() 메서드를 사용하여 입력값이 Enum 타입에 속하는지 확인
+            UserStatus userStatus = Enum.valueOf(UserStatus.class, status);
+            return false; // 속한다면 false 반환
+        } catch (IllegalArgumentException e) {
+            return true; // 속하지 않는다면 true 반환
+        }
+    }
 
 
 }

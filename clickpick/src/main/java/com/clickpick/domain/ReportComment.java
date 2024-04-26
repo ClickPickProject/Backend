@@ -4,15 +4,13 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ReportComment {
 
@@ -22,17 +20,14 @@ public class ReportComment {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "comment_id",nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE) // 연쇄 삭제 설정
     private Comment comment;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "report_user_id",nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE) // 연쇄 삭제 설정
     private User reportUser;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reported_user_id",nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE) // 연쇄 삭제 설정
     private User reportedUser;
 
     @CreationTimestamp

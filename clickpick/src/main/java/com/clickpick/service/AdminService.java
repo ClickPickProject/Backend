@@ -217,7 +217,7 @@ public class AdminService {
     public ResponseEntity getReportPostLIst(int page) {
         PageRequest pageRequest = PageRequest.of(page, 10, Sort.by(Sort.Direction.ASC, "createAt"));
         Page<ReportPost> pagingResult = reportPostRepository.findAll(pageRequest);
-        Page<ViewReportPostReq> map = pagingResult.map(reportPost -> new ViewReportPostReq(reportPost));
+        Page<ViewReportPostRes> map = pagingResult.map(reportPost -> new ViewReportPostRes(reportPost));
 
         return ResponseEntity.status(HttpStatus.OK).body(map);
 
@@ -226,7 +226,7 @@ public class AdminService {
     public ResponseEntity getReportCommentLIst(int page) {
         PageRequest pageRequest = PageRequest.of(page, 10, Sort.by(Sort.Direction.ASC, "createAt"));
         Page<ReportComment> pagingResult = reportCommentRepository.findAll(pageRequest);
-        Page<ViewReportCommentReq> map = pagingResult.map(reportComment -> new ViewReportCommentReq(reportComment));
+        Page<ViewReportCommentRes> map = pagingResult.map(reportComment -> new ViewReportCommentRes(reportComment));
 
         return ResponseEntity.status(HttpStatus.OK).body(map);
     }

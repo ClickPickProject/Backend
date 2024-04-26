@@ -10,11 +10,13 @@ import java.time.LocalDateTime;
 @Data
 public class BanUserReq {
 
+    @NotNull
+    private Long reportPostId;
     @NotBlank
     private String reportedUserId;
     @NotBlank
     private String reason;
     @NotNull
-    private LocalDateTime endDate;
+    private Long banDays;
 
 }

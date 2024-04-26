@@ -42,4 +42,13 @@ public class BanUser {
         this.endDate = endDate;
         this.reason = reason;
     }
+
+    public void plusPeriod(Long days){
+        this.endDate = endDate.plusDays(days);
+    }
+
+    public void changeReason(String reason){
+        this.reason = reason;
+    }
+
 }

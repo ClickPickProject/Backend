@@ -4,14 +4,13 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.*;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ReportPost {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,17 +19,14 @@ public class ReportPost {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "report_user_id",nullable = false)
-
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private User reportUser;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reported_user_id",nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private User reportedUser;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id",nullable = false)
+    @JoinColumn(name = "post_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Post post;
   
@@ -53,5 +49,9 @@ public class ReportPost {
 
     public void changeReportStatus(){   //service에서 상태변경할 필요없이 바로 변경
         this.reportStatus = ReportStatus.valueOf("처리");
+    }
+
+    public void changePost(){
+        this.post = null;
     }
 }

@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -25,6 +26,7 @@ public class AdminService {
     private final PasswordEncoder passwordEncoder;
     private final ReportPostRepository reportPostRepository;
     private final BanUserRepository banUserRepository;
+    private final PostRepository postRepository;
     private final ReportCommentRepository reportCommentRepository;
 
 
@@ -96,9 +98,8 @@ public class AdminService {
         Admin admin = adminResult.get();
 
         //reportPostRepository에서 sql검색으로 인한 값인 = 신고된 유저를 가져온
-        Optional<ReportPost> reportedUserID = reportPostRepository.findReportedUserID(banUserReq.getReportedUserId());
-        //System.out.println("reportedUserId.get() = " + reportedUserId.get());
-
+        Optional<ReportPost> reportedUserID = reportPostRepository.findById(banUserReq.getReportPostId());
+        ReportPost reportPost = reportedUserID.get();
         //위에서 일치해서 존재한다면 아래를 실행
         if (reportedUserID.isPresent()) {
 
@@ -107,20 +108,38 @@ public class AdminService {
             User user = findbyId.get();
             //System.out.println("user11 = " + user);
 
-            //usertable에서 상태를 정지로 변경
-            user.changeStatus(UserStatus.BAN); // 유저를 정지시킴  --userRepository.save(user); // 변경 사항을 저장 <-- 안해도됨.
+            if(user.getStatus() == UserStatus.BAN){
+                Optional<BanUser> banUserResult = banUserRepository.findBanUserId(user.getId());
+                BanUser banUser = banUserResult.get();
+                banUser.plusPeriod(banUserReq.getBanDays());
+                user.changeStatus(UserStatus.valueOf("BAN"));
+                banUser.changeReason(banUserReq.getReason());
 
-            //정지 처리를 한 후 BanUser 테이블에 생성.
-            BanUser banUser = new BanUser(user,admin,banUserReq.getEndDate(),banUserReq.getReason());
-            banUserRepository.save(banUser);
+                postRepository.delete(reportedUserID.get().getPost());
+                reportPost.changeReportStatus();
+                reportPost.changePost();
 
-            //정지 처리를 한 후 reportPost table에서는 처리완료 상태로 변경하기
-            ReportPost reportPost = reportedUserID.get();
-            reportPost.changeReportStatus();
+                return ResponseEntity.ok("정지 기간을 연장하였습니다.");
+            }
+            else{
+                user.changeStatus(UserStatus.BAN); // 유저를 정지시킴  --userRepository.save(user); // 변경 사항을 저장 <-- 안해도됨.
 
-            return ResponseEntity.ok("사용자를 정지 시켰습니다.");
+                //정지 처리를 한 후 BanUser 테이블에 생성.
+                BanUser banUser = new BanUser(user,admin, LocalDateTime.now().plusDays(banUserReq.getBanDays()),banUserReq.getReason());
+                banUserRepository.save(banUser);
+                user.changeStatus(UserStatus.valueOf("BAN"));
+                //정지 처리를 한 후 reportPost table에서는 처리완료 상태로 변경하기
+                reportPost.changeReportStatus();
+                postRepository.delete(reportPost.getPost());
+                reportPost.changePost();
+
+
+
+                return ResponseEntity.ok("사용자를 정지 시켰습니다.");
+            }
+
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다. ");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
         }
     }
 
@@ -147,7 +166,7 @@ public class AdminService {
             user.changeStatus(UserStatus.BAN); // 유저를 정지시킴  --userRepository.save(user); // 변경 사항을 저장 <-- 안해도됨.
 
             //정지 처리를 한 후 BanUser 테이블에 생성.
-            BanUser banUser = new BanUser(user,admin,banUserReq.getEndDate(),banUserReq.getReason());
+            BanUser banUser = new BanUser(user,admin,LocalDateTime.now().plusDays(banUserReq.getBanDays()),banUserReq.getReason());
             banUserRepository.save(banUser);
 
             //정지 처리를 한 후 reportComment table에서는 처리완료 상태로 변경하기

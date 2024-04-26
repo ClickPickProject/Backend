@@ -11,7 +11,7 @@ import lombok.Data;
 public class ViewReportCommentRes {
 
     @NotNull
-    private Long reportPostId; //컬럼 id
+    private Long reportCommentId; //컬럼 id
 
     @NotBlank
     private String reportUserId;
@@ -29,7 +29,7 @@ public class ViewReportCommentRes {
     private ReportStatus reportStatus;
 
     public ViewReportCommentRes(ReportComment reportComment) {
-        this.reportPostId = reportComment.getId();
+        this.reportCommentId = reportComment.getId();
         this.reportedUserId = reportComment.getReportedUser().getId();
         this.reportUserId = reportComment.getReportUser().getId();
         this.commentId = reportComment.getComment().getId();

@@ -19,7 +19,7 @@ public class ReportComment {
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "comment_id",nullable = false)
+    @JoinColumn(name = "comment_id")
     private Comment comment;
 
     @ManyToOne(fetch = FetchType.LAZY)

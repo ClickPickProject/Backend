@@ -2,6 +2,7 @@ package com.clickpick.controller;
 
 import com.clickpick.domain.User;
 import com.clickpick.dto.admin.BanUserReq;
+import com.clickpick.dto.admin.ChangePeriodReq;
 import com.clickpick.dto.admin.SingUpAdminReq;
 import com.clickpick.service.AdminService;
 import jakarta.validation.Valid;
@@ -93,6 +94,20 @@ public class AdminController {
     public ResponseEntity updateBanStatus(@PathVariable("userid") String userId) {
         // 정지된 유저의 상태를 변경하는 로직을 구현
         ResponseEntity responseEntity = adminService.updateBanStatus(userId);
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
+    }
+
+    /* 유저 정지 기간 변경 */
+    @PostMapping("/api/admin/ban/period")
+    public ResponseEntity changeBanUserPeriod(@RequestBody @Valid ChangePeriodReq changePeriodReq){
+        ResponseEntity responseEntity = adminService.changePeriod(changePeriodReq);
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
+    }
+
+    /* 정지 유저 삭제 */
+    @DeleteMapping("/api/admin/ban/{userId}")
+    public ResponseEntity deleteBanUser(@PathVariable("userId") String userId){
+        ResponseEntity responseEntity = adminService.dropBanUser(userId);
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }
 

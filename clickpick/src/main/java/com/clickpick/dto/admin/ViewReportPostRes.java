@@ -17,7 +17,6 @@ public class ViewReportPostRes {
     @NotBlank
     private String reportedUserId;
 
-    @NotBlank
     private Long postId;
 
     @NotBlank
@@ -30,7 +29,12 @@ public class ViewReportPostRes {
         this.reportPostId = reportPost.getId();
         this.reportedUserId = reportPost.getReportedUser().getId();
         this.reportUserId = reportPost.getReportUser().getId();
-        this.postId = reportPost.getPost().getId();
+        if(reportPost.getPost() == null){
+            this.postId = null;
+        }
+        else{
+            this.postId = reportPost.getPost().getId();
+        }
         this.reason = reportPost.getReason();
         this.reportStatus = reportPost.getReportStatus();
 

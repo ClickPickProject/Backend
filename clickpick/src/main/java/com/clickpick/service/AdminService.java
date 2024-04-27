@@ -111,7 +111,7 @@ public class AdminService {
             if(user.getStatus() == UserStatus.BAN){
                 Optional<BanUser> banUserResult = banUserRepository.findBanUserId(user.getId());
                 BanUser banUser = banUserResult.get();
-                banUser.plusPeriod(banUserReq.getBanDays());
+                banUser.changePeriod(banUserReq.getBanDays());
                 user.changeStatus(UserStatus.valueOf("BAN"));
                 banUser.changeReason(banUserReq.getReason());
 
@@ -231,9 +231,35 @@ public class AdminService {
         return ResponseEntity.status(HttpStatus.OK).body(map);
     }
 
+    /* 유저 정지 기간 변경 */
+    @Transactional
+    public ResponseEntity changePeriod(ChangePeriodReq changePeriodReq) {
+        Optional<BanUser> banUserResult = banUserRepository.findBanUserId(changePeriodReq.getUserId());
+        if(banUserResult.isPresent()){
+            BanUser banUser = banUserResult.get();
+            banUser.changePeriod(changePeriodReq.getDays());
+
+            return ResponseEntity.status(HttpStatus.OK).body("정지 기간을 변경하였습니다.");
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("정지 유저에 존재하지 않습니다.");
+
+    }
 
 
-    /* 정지 유저 단일?? 정지 사유, 정지 게시물 */
+
+    /* 정지 유저 삭제 */
+    @Transactional
+    public ResponseEntity dropBanUser(String userId){
+        Optional<BanUser> banUserResult = banUserRepository.findBanUserId(userId);
+        if(banUserResult.isPresent()){
+            User user = banUserResult.get().getUser();
+            user.changeStatus(UserStatus.valueOf("NORMAL"));
+            banUserRepository.delete(banUserResult.get());
+
+            return ResponseEntity.status(HttpStatus.OK).body("정지 유저에서 삭제하였습니다.");
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("정지 유저에 존재하지 않습니다.");
+    }
 
 
 
@@ -248,6 +274,7 @@ public class AdminService {
             return true; // 속하지 않는다면 true 반환
         }
     }
+
 
 
 }

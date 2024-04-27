@@ -43,7 +43,7 @@ public class BanUser {
         this.reason = reason;
     }
 
-    public void plusPeriod(Long days){
+    public void changePeriod(Long days){
         this.endDate = endDate.plusDays(days);
     }
 

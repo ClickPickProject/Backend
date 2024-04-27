@@ -19,7 +19,6 @@ public class ViewReportCommentRes {
     @NotBlank
     private String reportedUserId;
 
-    @NotBlank
     private Long commentId;
 
     @NotBlank
@@ -32,7 +31,12 @@ public class ViewReportCommentRes {
         this.reportCommentId = reportComment.getId();
         this.reportedUserId = reportComment.getReportedUser().getId();
         this.reportUserId = reportComment.getReportUser().getId();
-        this.commentId = reportComment.getComment().getId();
+        if(reportComment.getComment() == null){
+            this.commentId = null;
+        }
+        else{
+            this.commentId = reportComment.getComment().getId();
+        }
         this.reason = reportComment.getReason();
         this.reportStatus = reportComment.getReportStatus();
 

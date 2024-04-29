@@ -2,6 +2,7 @@ package com.clickpick.jwt;
 
 import com.clickpick.domain.Admin;
 import com.clickpick.domain.User;
+import com.clickpick.domain.UserStatus;
 import com.clickpick.repository.AdminRepository;
 import com.clickpick.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,9 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> result = userRepository.findById(username);
         if(result.isPresent()){
+            if(result.get().getStatus() == UserStatus.BAN){
+                throw new UsernameNotFoundException("정지된 회원입니다.");
+            }
             JWTUserDto jwtUserDto = new JWTUserDto(result.get().getId(),result.get().getNickname(),result.get().getPassword(),result.get().getStatus().toString());
             return new CustomUserDetails(jwtUserDto);
         }

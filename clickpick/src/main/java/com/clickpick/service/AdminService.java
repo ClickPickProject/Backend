@@ -27,6 +27,7 @@ public class AdminService {
     private final ReportPostRepository reportPostRepository;
     private final BanUserRepository banUserRepository;
     private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
     private final ReportCommentRepository reportCommentRepository;
 
 
@@ -71,24 +72,6 @@ public class AdminService {
 
     }
 
-//    /* --- 유저 단일 확인 */
-//    @Transactional
-//    public ResponseEntity getUser(String userId) {
-//        Optional<User> userResult = userRepository.findById(userId);
-//        if(userResult.isPresent()){
-//            User user = userResult.get();
-//            //비밀번호를 제외하고 나오게 하는데.. 그러면 ViewUserListReq랑 다를게 없는데!?
-//            //내일 물어봐야겠따..
-//            //유저의 게시물? 댓글?
-//            //ViewUserReq viewUserReq = new ViewUserReq(user.getId(),)
-////            ViewUserReq viewUserReq = UserMapper.toViewUserReq(user);
-//
-//            return ResponseEntity.status(HttpStatus.OK).body(user);
-//        }
-//        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("유저를 찾을 수 없습니다.");
-//    }
-
-
     /* 게시글 신고된 유저 정지 시키기 + 신고사유와 정지기간 설정 추가해야함.*/
     @Transactional
     public ResponseEntity banUserReportedPost(String adminId, BanUserReq banUserReq) {
@@ -98,7 +81,7 @@ public class AdminService {
         Admin admin = adminResult.get();
 
         //reportPostRepository에서 sql검색으로 인한 값인 = 신고된 유저를 가져온
-        Optional<ReportPost> reportedUserID = reportPostRepository.findById(banUserReq.getReportPostId());
+        Optional<ReportPost> reportedUserID = reportPostRepository.findById(banUserReq.getReportId());
         ReportPost reportPost = reportedUserID.get();
         //위에서 일치해서 존재한다면 아래를 실행
         if (reportedUserID.isPresent()) {
@@ -112,12 +95,11 @@ public class AdminService {
                 Optional<BanUser> banUserResult = banUserRepository.findBanUserId(user.getId());
                 BanUser banUser = banUserResult.get();
                 banUser.changePeriod(banUserReq.getBanDays());
-                user.changeStatus(UserStatus.valueOf("BAN"));
                 banUser.changeReason(banUserReq.getReason());
 
                 postRepository.delete(reportedUserID.get().getPost());
                 reportPost.changeReportStatus();
-                reportPost.changePost();
+                reportPost.changePostNull();
 
                 return ResponseEntity.ok("정지 기간을 연장하였습니다.");
             }
@@ -131,7 +113,7 @@ public class AdminService {
                 //정지 처리를 한 후 reportPost table에서는 처리완료 상태로 변경하기
                 reportPost.changeReportStatus();
                 postRepository.delete(reportPost.getPost());
-                reportPost.changePost();
+                reportPost.changePostNull();
 
 
 
@@ -146,44 +128,60 @@ public class AdminService {
     /* 댓글신고된 유저 정지 시키기 + 신고사유와 정지기간 설정 추가해야함.*/
     @Transactional
     public ResponseEntity banUserReportedComment(String adminId, BanUserReq banUserReq) {
+
         //현재 로그인된 유저 가져오기(매니저)
         Optional<Admin> adminResult = adminRepository.findById(adminId);
         Admin admin = adminResult.get();
 
-        //reportCommentRepository에서 sql검색으로 인한 값인 = 신고된 유저를 가져온
-        Optional<ReportComment> reportedUserID = reportCommentRepository.findReportedUserID(banUserReq.getReportedUserId());
-        //System.out.println("reportedUserId.get() = " + reportedUserId.get());
-
+        Optional<ReportComment> reportedUserID = reportCommentRepository.findById(banUserReq.getReportId());
+        ReportComment reportComment = reportedUserID.get();
         //위에서 일치해서 존재한다면 아래를 실행
         if (reportedUserID.isPresent()) {
 
-            //User 테이블에 위에서 검증한(ReportComment) 유저와 동일하다면 User테이블의 userid를 가져온다.
             Optional<User> findbyId = userRepository.findById(reportedUserID.get().getReportedUser().getId());
             User user = findbyId.get();
-            //System.out.println("user11 = " + user);
 
-            //usertable에서 상태를 정지로 변경
-            user.changeStatus(UserStatus.BAN); // 유저를 정지시킴  --userRepository.save(user); // 변경 사항을 저장 <-- 안해도됨.
+            if(user.getStatus() == UserStatus.BAN){
+                Optional<BanUser> banUserResult = banUserRepository.findBanUserId(user.getId());
+                BanUser banUser = banUserResult.get();
+                banUser.changePeriod(banUserReq.getBanDays());
+                banUser.changeReason(banUserReq.getReason());
 
-            //정지 처리를 한 후 BanUser 테이블에 생성.
-            BanUser banUser = new BanUser(user,admin,LocalDateTime.now().plusDays(banUserReq.getBanDays()),banUserReq.getReason());
-            banUserRepository.save(banUser);
+                Comment comment = reportComment.getComment();
+                comment.tempReport();
+                reportComment.changeReportStatus();
 
-            //정지 처리를 한 후 reportComment table에서는 처리완료 상태로 변경하기
-            //@Transactional 안적어주어서 '처리'로 변경이 안되었다..
-            ReportComment reportComment = reportedUserID.get();
-            reportComment.changeReportStatus();
+                return ResponseEntity.ok("정지 기간을 연장하였습니다.");
+            }
+            else{
+                user.changeStatus(UserStatus.BAN); // 유저를 정지시킴  --userRepository.save(user); // 변경 사항을 저장 <-- 안해도됨.
 
-            return ResponseEntity.ok("사용자를 정지 시켰습니다.");
+                //정지 처리를 한 후 BanUser 테이블에 생성.
+                BanUser banUser = new BanUser(user,admin, LocalDateTime.now().plusDays(banUserReq.getBanDays()),banUserReq.getReason());
+                banUserRepository.save(banUser);
+                user.changeStatus(UserStatus.valueOf("BAN"));
+                //정지 처리를 한 후 reportPost table에서는 처리완료 상태로 변경하기
+                if(reportComment.getComment().getComments().size() > 0){
+                    reportComment.changeReportStatus();
+                    Comment comment = reportComment.getComment();
+                    comment.tempReport();
+                }
+                else{
+                    reportComment.changeCommentNull();
+                    commentRepository.delete(reportComment.getComment());
+
+                }
+
+                return ResponseEntity.ok("사용자를 정지 시켰습니다.");
+            }
+
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다. ");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
         }
+
     }
 
 
-    //ban이 된 유저는 그냥 user에서 report으로 복사 된다.
-    //아 report는 유저끼리 신고 된것이고.
-    //여기서는 그냥 If문으로 정지 된것만 불러오면 되겠다.
     /* 정지 유저 리스트 */
     public ResponseEntity banUserList(int page) {
         PageRequest pageRequest = PageRequest.of(page, 10, Sort.by(Sort.Direction.ASC,"startDate"));
@@ -193,15 +191,9 @@ public class AdminService {
         return ResponseEntity.status(HttpStatus.OK).body(map);
     }
 
-    // 왜 안될까? 인증 되었다가 post할려니 인증이 안되었다니....
-    // 이유를 전혀 모르겠는데;;;;;;
-    //뭐가 문제였는지는 모르겠다..
-    //아무튼 정지일때 정상으로 변경하는 것.
     /* 정지 유저 변경 */
     @Transactional
     public ResponseEntity updateBanStatus(String userId) {
-        //Optional<User> userResult = userRepository.findById(userId);
-        //그냥 하면 에러남.. @에러 에러나는 듯. 아래와 같이 해줘야한다? 엥 아니네 아까는 안되었는데 지금은 잘만되는데;;
         Optional<User> userResult = userRepository.findById(userId);
 
         if (userResult.isPresent()) {

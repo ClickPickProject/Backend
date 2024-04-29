@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public class BanUserReq {
 
     @NotNull
-    private Long reportPostId;
+    private Long reportId;
     @NotBlank
     private String reportedUserId;
     @NotBlank

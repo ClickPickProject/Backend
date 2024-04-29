@@ -53,4 +53,8 @@ public class ReportComment {
         this.reason = reason;
     }
 
+    public void changeCommentNull(){
+        this.comment = null;
+    }
+
 }

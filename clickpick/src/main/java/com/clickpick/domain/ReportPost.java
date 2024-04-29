@@ -51,7 +51,7 @@ public class ReportPost {
         this.reportStatus = ReportStatus.valueOf("처리");
     }
 
-    public void changePost(){
+    public void changePostNull(){
         this.post = null;
     }
 }

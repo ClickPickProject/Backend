@@ -61,6 +61,12 @@ public class Comment {
 
     }
 
+    public void tempReport(){
+        this.status = CommentStatus.valueOf("DELETE");
+        this.content = "신고된 댓글입니다.";
+
+    }
+
     public void leaveUserComment(User user){
         this.status = CommentStatus.valueOf("DELETE");
         this.content = "삭제된 댓글입니다.";

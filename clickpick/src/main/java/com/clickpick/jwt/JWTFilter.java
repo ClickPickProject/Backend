@@ -63,7 +63,7 @@ public class JWTFilter extends OncePerRequestFilter {
         } catch (ExpiredJwtException e) {
             // 토큰이 만료된 경우 처리
             HttpServletResponse httpResponse = (HttpServletResponse) response;
-            httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 이때 /api/reissue 요청
+            httpResponse.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE); // 이때 /api/reissue 요청
             httpResponse.setCharacterEncoding("UTF-8");
             httpResponse.getWriter().write("접근 토큰이 만료되었습니다.");
             httpResponse.getWriter().flush();

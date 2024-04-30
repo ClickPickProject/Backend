@@ -43,18 +43,18 @@ public class JwtService {
             HttpServletResponse httpResponse = (HttpServletResponse) response;
             httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             httpResponse.setCharacterEncoding("UTF-8");
-            httpResponse.getWriter().write("토큰이 만료되었습니다.");
+            httpResponse.getWriter().write("로그인 시간이 만료되었습니다.");
             httpResponse.getWriter().flush();
         } catch (SignatureException e) {
             // 서명이 잘못된 경우 처리
             HttpServletResponse httpResponse = (HttpServletResponse) response;
-            httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            httpResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
             httpResponse.setCharacterEncoding("UTF-8");
             httpResponse.getWriter().write("잘못된 토큰입니다.");
             httpResponse.getWriter().flush();
         } catch (MalformedJwtException e) {
             HttpServletResponse httpResponse = (HttpServletResponse) response;
-            httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            httpResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
             httpResponse.setCharacterEncoding("UTF-8");
             httpResponse.getWriter().write("토큰이 올바르지 않습니다.");
             httpResponse.getWriter().flush();

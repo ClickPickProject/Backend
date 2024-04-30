@@ -43,7 +43,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
             if (!category.equals("authorization")){
                 HttpServletResponse httpResponse = (HttpServletResponse) response;
-                httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                httpResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 httpResponse.setCharacterEncoding("UTF-8");
                 httpResponse.getWriter().write("올바른 토큰이 아닙니다.");
                 httpResponse.getWriter().flush();
@@ -63,20 +63,20 @@ public class JWTFilter extends OncePerRequestFilter {
         } catch (ExpiredJwtException e) {
             // 토큰이 만료된 경우 처리
             HttpServletResponse httpResponse = (HttpServletResponse) response;
-            httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 이때 /api/reissue 요청
             httpResponse.setCharacterEncoding("UTF-8");
-            httpResponse.getWriter().write("로그인 시간이 만료되었습니다.");
+            httpResponse.getWriter().write("접근 토큰이 만료되었습니다.");
             httpResponse.getWriter().flush();
         } catch (SignatureException e) {
             // 서명이 잘못된 경우 처리
             HttpServletResponse httpResponse = (HttpServletResponse) response;
-            httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            httpResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
             httpResponse.setCharacterEncoding("UTF-8");
             httpResponse.getWriter().write("잘못된 토큰 입니다.");
             httpResponse.getWriter().flush();
         } catch (MalformedJwtException e) {
             HttpServletResponse httpResponse = (HttpServletResponse) response;
-            httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            httpResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
             httpResponse.setCharacterEncoding("UTF-8");
             httpResponse.getWriter().write("토큰이 올바르지 않습니다.");
             httpResponse.getWriter().flush();

@@ -38,6 +38,17 @@ public class JWTFilter extends OncePerRequestFilter {
                 return;
             }
 
+
+            String category = jwtUtil.getCategory(authorization);
+
+            if (!category.equals("authorization")){
+                HttpServletResponse httpResponse = (HttpServletResponse) response;
+                httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                httpResponse.setCharacterEncoding("UTF-8");
+                httpResponse.getWriter().write("올바른 토큰이 아닙니다.");
+                httpResponse.getWriter().flush();
+
+            }
             String userId = jwtUtil.getUsername(token);
             String role = jwtUtil.getRole(token);
             JWTUserDto user = new JWTUserDto(userId, role);

@@ -58,7 +58,7 @@ public class QuestionController {
     /* 추가 답변 수정 */
 
     /* 답변 수정 */
-    @PostMapping("/api/admin/answer/{answerId}")
+    @PostMapping("/api/member/answer/{answerId}")
     public ResponseEntity updateAnswer(@PathVariable("answerId")Long answerId, @RequestBody @Valid UpdateAnswerReq updateAnswerReq){
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         ResponseEntity responseEntity = questionService.renewAnswer(userId, answerId, updateAnswerReq);
@@ -66,7 +66,7 @@ public class QuestionController {
     }
 
     /* 답변 삭제 */
-    @DeleteMapping("/api/admin/answer/{answerId}")
+    @DeleteMapping("/api/member/answer/{answerId}")
     public ResponseEntity eraseAnswer(@PathVariable("answerId")Long answerId){
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         ResponseEntity responseEntity = questionService.deleteAnswer(userId, answerId);

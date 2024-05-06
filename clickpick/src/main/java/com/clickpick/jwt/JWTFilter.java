@@ -39,9 +39,9 @@ public class JWTFilter extends OncePerRequestFilter {
             }
 
 
-            String category = jwtUtil.getCategory(authorization);
+            String category = jwtUtil.getCategory(token);
 
-            if (!category.equals("authorization")){
+            if (!category.equals("Authorization")){
                 HttpServletResponse httpResponse = (HttpServletResponse) response;
                 httpResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 httpResponse.setCharacterEncoding("UTF-8");

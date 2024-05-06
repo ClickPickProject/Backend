@@ -14,9 +14,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.Year;
+import java.time.YearMonth;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -255,15 +260,46 @@ public class AdminService {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("정지 유저에 존재하지 않습니다.");
     }
 
+    /* 가입자 월별 카운팅 */
     public ResponseEntity countMember(Long year){
         List<Map<String, Object>> monthlyUserCounts = userRepository.countUsersByMonth(year);
 
+        Map<String, Integer> result = fillMissingMonths(monthlyUserCounts, year);
         // HTTP 응답으로 월별 사용자 카운트 결과를 반환
-        return ResponseEntity.status(HttpStatus.OK).body(monthlyUserCounts);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
 
 
+
+
+
+
+    private Map<String, Integer> fillMissingMonths(List<Map<String, Object>> monthlyUserCounts, Long year) {
+        Map<String, Integer> result = initializeMonthlyCounts(year);
+
+        // DB에서 가져온 월별 사용자 수를 결과에 반영
+        for (Map<String, Object> count : monthlyUserCounts) {
+            String monthYear = (String) count.get("monthYear");
+            Long userCount = (Long) count.get("userCount");
+            result.put(monthYear, userCount.intValue());
+        }
+
+        return result;
+    }
+
+    private Map<String, Integer> initializeMonthlyCounts(Long year) {
+        Map<String, Integer> result = new HashMap<>();
+
+        // 입력된 연도의 1월부터 12월까지 모든 월을 0으로 초기화
+        List<String> months = IntStream.rangeClosed(1, 12)
+                .mapToObj(month -> String.format("%d-%d", year, month)) // 연도-월 형식으로 문자열 생성
+                .collect(Collectors.toList());
+
+        months.forEach(month -> result.put(month, 0));
+
+        return result;
+    }
 
 
     public static boolean isEnumValue(String status) {

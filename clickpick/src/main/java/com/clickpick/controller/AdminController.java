@@ -111,6 +111,13 @@ public class AdminController {
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }
 
+    /* 월별로 가입한 유저 카운팅 */
+    @GetMapping("/api/admin/user/month/{year}")
+    public ResponseEntity countMonthMember(@PathVariable("year") Long year){
+        ResponseEntity responseEntity = adminService.countMember(year);
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
+    }
+
 
 
 //    /* (banUser table에서) 정지 유저 삭제 */

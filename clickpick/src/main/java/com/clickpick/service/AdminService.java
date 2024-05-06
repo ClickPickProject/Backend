@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -167,8 +169,8 @@ public class AdminService {
                     comment.tempReport();
                 }
                 else{
-                    reportComment.changeCommentNull();
                     commentRepository.delete(reportComment.getComment());
+                    reportComment.changeCommentNull();
 
                 }
 
@@ -251,6 +253,13 @@ public class AdminService {
             return ResponseEntity.status(HttpStatus.OK).body("정지 유저에서 삭제하였습니다.");
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("정지 유저에 존재하지 않습니다.");
+    }
+
+    public ResponseEntity countMember(Long year){
+        List<Map<String, Object>> monthlyUserCounts = userRepository.countUsersByMonth(year);
+
+        // HTTP 응답으로 월별 사용자 카운트 결과를 반환
+        return ResponseEntity.status(HttpStatus.OK).body(monthlyUserCounts);
     }
 
 

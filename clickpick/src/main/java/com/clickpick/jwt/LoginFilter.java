@@ -5,6 +5,7 @@ import com.clickpick.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -68,9 +69,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         String role = auth.getAuthority();
 
-        String token = jwtUtil.createJwt(username, role, 3600000L); // 3600000ms => 60분
+        String token = jwtUtil.createJwt("Authorization",username, role, 600000L); // 3600000ms => 60분
+        String refresh = jwtUtil.createJwt("refresh",username, role, 86400000L); // 24시간
+
 
         response.addHeader("Authorization", "Bearer " + token);
+        response.addCookie(createCookie("refresh", refresh));
         response.setCharacterEncoding("UTF-8");
         JsonObject jsonResponse = new JsonObject();
         jsonResponse.addProperty("nickname", nickname );
@@ -87,6 +91,19 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         response.getWriter().write("잘못된 아이디 또는 비밀번호 입니다.");
         response.getWriter().flush();
 
+    }
+
+    private Cookie createCookie(String key, String value) {
+
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(24*60*60);
+
+        //cookie.setSecure(true); // -> https 설정 시 사용
+        //cookie.setPath("/"); // 적용 범위 설정
+
+        cookie.setHttpOnly(true); // 자바스크립트로 해당 쿠기 접근 제한
+
+        return cookie;
     }
 
 

@@ -187,16 +187,23 @@ public class AdminService {
     }
 
     /* 신고 철회 */
+    @Transactional
     public ResponseEntity cancelReport(CancelReportRes cancelReportRes){
         if(cancelReportRes.getType().equals("post") ){
             Optional<ReportPost> result = reportPostRepository.findById(cancelReportRes.getId());
             if(result.isPresent()){
+                if(result.get().getReportStatus() == ReportStatus.처리){
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 처리된 신고입니다.");
+                }
                 reportPostRepository.delete(result.get());
                 return ResponseEntity.ok("해당 게시글 신고를 철회하였습니다.");
             }
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 게시글 신고 입니다.");
         } else if (cancelReportRes.getType().equals("comment")) {
             Optional<ReportComment> result = reportCommentRepository.findById(cancelReportRes.getId());
+            if(result.get().getReportStatus() == ReportStatus.처리){
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 처리된 신고입니다.");
+            }
             if(result.isPresent()){
                 reportCommentRepository.delete(result.get());
                 return ResponseEntity.ok("해당 댓글 신고를 철회하였습니다.");

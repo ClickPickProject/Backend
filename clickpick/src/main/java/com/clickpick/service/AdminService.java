@@ -14,8 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.Year;
-import java.time.YearMonth;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -187,6 +185,29 @@ public class AdminService {
         }
 
     }
+
+    /* 신고 철회 */
+    public ResponseEntity cancelReport(CancelReportRes cancelReportRes){
+        if(cancelReportRes.getType().equals("post") ){
+            Optional<ReportPost> result = reportPostRepository.findById(cancelReportRes.getId());
+            if(result.isPresent()){
+                reportPostRepository.delete(result.get());
+                return ResponseEntity.ok("해당 게시글 신고를 철회하였습니다.");
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 게시글 신고 입니다.");
+        } else if (cancelReportRes.getType().equals("comment")) {
+            Optional<ReportComment> result = reportCommentRepository.findById(cancelReportRes.getId());
+            if(result.isPresent()){
+                reportCommentRepository.delete(result.get());
+                return ResponseEntity.ok("해당 댓글 신고를 철회하였습니다.");
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 댓글 신고 입니다.");
+        }
+        else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("잘못된 타입값입니다.");
+        }
+    }
+
 
 
     /* 정지 유저 리스트 */

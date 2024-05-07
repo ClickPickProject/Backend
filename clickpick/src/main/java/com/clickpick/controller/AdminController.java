@@ -2,6 +2,7 @@ package com.clickpick.controller;
 
 import com.clickpick.domain.User;
 import com.clickpick.dto.admin.BanUserReq;
+import com.clickpick.dto.admin.CancelReportRes;
 import com.clickpick.dto.admin.ChangePeriodReq;
 import com.clickpick.dto.admin.SingUpAdminReq;
 import com.clickpick.service.AdminService;
@@ -115,6 +116,13 @@ public class AdminController {
     @GetMapping("/api/admin/user/month/{year}")
     public ResponseEntity countMonthMember(@PathVariable("year") Long year){
         ResponseEntity responseEntity = adminService.countMember(year);
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
+    }
+
+    /* 신고 철회 */
+    @PostMapping("/api/admin/withdrawal")
+    public ResponseEntity withdrawReport(@RequestBody @Valid CancelReportRes cancelReportRes){
+        ResponseEntity responseEntity = adminService.cancelReport(cancelReportRes);
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }
 

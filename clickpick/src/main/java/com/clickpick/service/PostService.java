@@ -371,6 +371,9 @@ public class PostService {
             if(reportPostResult.isPresent()){
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 처리된 신고입니다.");
             }
+            if(reportPostReq.getReportedUserNickname().equals(userId)){
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("본인을 신고할 수 없습니다.");
+            }
             Optional<User> reportedUserResult = userRepository.findByNickname(reportPostReq.getReportedUserNickname());
             Optional<Post> userPostResult = postRepository.findUserPost(reportPostReq.getPostId(), reportedUserResult.get().getId());
             if(userPostResult.isPresent()){

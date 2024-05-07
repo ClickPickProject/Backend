@@ -147,6 +147,9 @@ public class CommentService {
             if(reportCommentResult.isPresent()){
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 처리된 신고입니다.");
             }
+            if(reportCommentReq.getReportedUserNickname().equals(userId)){
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("본인을 신고할 수 없습니다.");
+            }
             Optional<User> reportedUserResult = userRepository.findByNickname(reportCommentReq.getReportedUserNickname());
             Optional<Comment> userCommentResult = commentRepository.findUserComment(reportCommentReq.getCommentId(), reportedUserResult.get().getId());
             if(userCommentResult.isPresent()){

@@ -119,6 +119,18 @@ public class AdminController {
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }
 
+    /* 월별로 신고된 게시글 카운팅 */
+    @GetMapping("/api/admin/report/post/{year}")
+    public ResponseEntity countMonthPost(@PathVariable("year") Long year){
+        ResponseEntity responseEntity = adminService.countReportPost(year);
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
+    }
+    /* 월별로 신고된 게시글 카운팅 */
+    @GetMapping("/api/admin/report/comment/{year}")
+    public ResponseEntity countMonthComment(@PathVariable("year") Long year){
+        ResponseEntity responseEntity = adminService.countReportComment(year);
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
+    }
     /* 신고 철회 */
     @PostMapping("/api/admin/withdrawal")
     public ResponseEntity withdrawReport(@RequestBody @Valid CancelReportRes cancelReportRes){

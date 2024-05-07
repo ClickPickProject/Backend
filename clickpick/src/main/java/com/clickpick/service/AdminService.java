@@ -290,11 +290,23 @@ public class AdminService {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    /* 게시글 신고 월별 카운팅 */
+    public ResponseEntity countReportPost(Long year){
+        List<Map<String, Object>> monthlyUserCounts = reportPostRepository.countReportPostByMonth(year);
 
+        Map<String, Integer> result = fillMissingMonths(monthlyUserCounts, year);
+        // HTTP 응답으로 월별 사용자 카운트 결과를 반환
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 
+    /* 댓글 신고 월별 카운팅 */
+    public ResponseEntity countReportComment(Long year){
+        List<Map<String, Object>> monthlyUserCounts = reportCommentRepository.countReportCommentByMonth(year);
 
-
-
+        Map<String, Integer> result = fillMissingMonths(monthlyUserCounts, year);
+        // HTTP 응답으로 월별 사용자 카운트 결과를 반환
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 
     private Map<String, Integer> fillMissingMonths(List<Map<String, Object>> monthlyUserCounts, Long year) {
         Map<String, Integer> result = initializeMonthlyCounts(year);
@@ -332,7 +344,6 @@ public class AdminService {
             return true; // 속하지 않는다면 true 반환
         }
     }
-
 
 
 }

@@ -14,10 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -293,8 +290,11 @@ public class AdminService {
         List<Map<String, Object>> monthlyUserCounts = userRepository.countUsersByMonth(year);
 
         Map<String, Integer> result = fillMissingMonths(monthlyUserCounts, year);
+        Map<String, Integer> sortedResult = result.entrySet().stream()
+                .sorted(Comparator.comparing(Map.Entry::getKey))
+                .collect(LinkedHashMap::new, (map, entry) -> map.put(entry.getKey(), entry.getValue()), Map::putAll);
         // HTTP 응답으로 월별 사용자 카운트 결과를 반환
-        return ResponseEntity.status(HttpStatus.OK).body(result);
+        return ResponseEntity.status(HttpStatus.OK).body(sortedResult);
     }
 
     /* 게시글 신고 월별 카운팅 */
@@ -302,8 +302,11 @@ public class AdminService {
         List<Map<String, Object>> monthlyUserCounts = reportPostRepository.countReportPostByMonth(year);
 
         Map<String, Integer> result = fillMissingMonths(monthlyUserCounts, year);
+        Map<String, Integer> sortedResult = result.entrySet().stream()
+                .sorted(Comparator.comparing(Map.Entry::getKey))
+                .collect(LinkedHashMap::new, (map, entry) -> map.put(entry.getKey(), entry.getValue()), Map::putAll);
         // HTTP 응답으로 월별 사용자 카운트 결과를 반환
-        return ResponseEntity.status(HttpStatus.OK).body(result);
+        return ResponseEntity.status(HttpStatus.OK).body(sortedResult);
     }
 
     /* 댓글 신고 월별 카운팅 */
@@ -311,8 +314,11 @@ public class AdminService {
         List<Map<String, Object>> monthlyUserCounts = reportCommentRepository.countReportCommentByMonth(year);
 
         Map<String, Integer> result = fillMissingMonths(monthlyUserCounts, year);
+        Map<String, Integer> sortedResult = result.entrySet().stream()
+                .sorted(Comparator.comparing(Map.Entry::getKey))
+                .collect(LinkedHashMap::new, (map, entry) -> map.put(entry.getKey(), entry.getValue()), Map::putAll);
         // HTTP 응답으로 월별 사용자 카운트 결과를 반환
-        return ResponseEntity.status(HttpStatus.OK).body(result);
+        return ResponseEntity.status(HttpStatus.OK).body(sortedResult);
     }
 
     private Map<String, Integer> fillMissingMonths(List<Map<String, Object>> monthlyUserCounts, Long year) {
@@ -322,7 +328,15 @@ public class AdminService {
         for (Map<String, Object> count : monthlyUserCounts) {
             String monthYear = (String) count.get("monthYear");
             Long userCount = (Long) count.get("userCount");
-            result.put(monthYear, userCount.intValue());
+
+            // monthYear의 월 부분을 두 자리 숫자로 변환하여 포맷팅
+            String[] parts = monthYear.split("-");
+            int month = Integer.parseInt(parts[1]); // 월을 숫자로 추출
+            String formattedMonth = String.format("%02d", month); // 월을 두 자리 숫자로 포맷팅
+
+            String formattedMonthYear = parts[0] + "-" + formattedMonth; // 연도-월 형식으로 조합
+
+            result.put(formattedMonthYear, userCount.intValue());
         }
 
         return result;
@@ -332,11 +346,10 @@ public class AdminService {
         Map<String, Integer> result = new HashMap<>();
 
         // 입력된 연도의 1월부터 12월까지 모든 월을 0으로 초기화
-        List<String> months = IntStream.rangeClosed(1, 12)
-                .mapToObj(month -> String.format("%d-%d", year, month)) // 연도-월 형식으로 문자열 생성
-                .collect(Collectors.toList());
-
-        months.forEach(month -> result.put(month, 0));
+        for (int month = 1; month <= 12; month++) {
+            String monthKey = String.format("%d-%02d", year, month); // 연도-월 형식으로 포맷팅 (월을 두 자리 숫자로)
+            result.put(monthKey, 0);
+        }
 
         return result;
     }

@@ -1,15 +1,13 @@
 package com.clickpick.jwt;
 
 import com.clickpick.dto.user.LoginReq;
-import com.clickpick.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -74,7 +72,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
 
         response.addHeader("Authorization", "Bearer " + token);
-        response.addCookie(createCookie("refresh", refresh));
+        response.addHeader("Set-Cookie", createCookie("refresh", refresh).toString());
         response.setCharacterEncoding("UTF-8");
         JsonObject jsonResponse = new JsonObject();
         jsonResponse.addProperty("nickname", nickname );
@@ -93,15 +91,15 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     }
 
-    private Cookie createCookie(String key, String value) {
+    private ResponseCookie createCookie(String key, String value) {
 
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(24*60*60);
+        ResponseCookie cookie = ResponseCookie.from(key,value)
+                .maxAge(24*60*60)
+                .sameSite("")
+                //.sameSite("None")
+                //.secure(true)
+                .httpOnly(true).build();
 
-        //cookie.setSecure(true); // -> https 설정 시 사용
-        //cookie.setPath("/"); // 적용 범위 설정
-
-        cookie.setHttpOnly(true); // 자바스크립트로 해당 쿠기 접근 제한
 
         return cookie;
     }

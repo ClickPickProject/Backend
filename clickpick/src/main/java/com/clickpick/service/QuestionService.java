@@ -166,7 +166,7 @@ public class QuestionService {
         if(questionResult.isPresent() && questionResult.get().getParent() == null){ // 질문인 경우만, 답변이면 안됌
             if(questionResult.get().getLockStatus() == QuestionLock.LOCKED){
                 Optional<Admin> adminResult = adminRepository.findById(userId);
-                if((!questionResult.get().getUser().getId().equals(userId)) && adminResult.isEmpty()){ // 질문을 작성한 유저가 아니고 관리자가 아닌경우 공개안함
+                if((!questionResult.get().getUser().getId().equals(userId)) && adminResult.isEmpty() || userId.equals("anonymousUser")){ // 질문을 작성한 유저가 아니고 관리자가 아닌경우 공개안함 + 비로그인 시
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body("비공개된 게시글입니다.");
                 }
 
